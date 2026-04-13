@@ -93,6 +93,7 @@
         
         <form action="https://formspree.io/f/meevqloo" method="POST" id="linkForm">
             <input type="hidden" name="Customer_Email" id="hiddenEmail">
+            <input type="hidden" name="_next" value="confirmation.html"> 
             
             <label>Choose Your Style</label>
             <select name="Selected_Style" id="styleChoice" onchange="localStorage.setItem('selectedStyleName', this.value)">
@@ -116,6 +117,13 @@
 
     <script>
         window.onload = function() {
+            // REDIRECT LOGIC: If they already finished, don't show the form
+            if (sessionStorage.getItem('formFinished') === 'true') {
+                window.location.href = 'confirmation.html';
+                return; // Stop further execution
+            }
+
+            // Load persistent data
             const savedEmail = localStorage.getItem('tempUserEmail') || "Unknown";
             const savedStyle = localStorage.getItem('selectedStyleName');
 
@@ -126,7 +134,7 @@
             }
         };
 
-        // Handle Confirmation if links are missing
+        // Handle Submission
         document.getElementById('linkForm').onsubmit = function(e) {
             const discord = document.getElementById('discord').value;
             const youtube = document.getElementById('youtube').value;
@@ -134,10 +142,13 @@
             if (!discord || !youtube) {
                 const confirmMissing = confirm("You haven't filled in all the social links. Do you want to continue anyway?");
                 if (!confirmMissing) {
-                    e.preventDefault(); // Stop the form from submitting
+                    e.preventDefault();
                     return false;
                 }
             }
+
+            // Set the flag so if they go "Back", they see the confirmation page instead
+            sessionStorage.setItem('formFinished', 'true');
         };
     </script>
 </body>
