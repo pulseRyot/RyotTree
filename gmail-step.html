@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Step 1: Auth</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 40px;
+            border-radius: 24px;
+            width: 360px;
+            text-align: center;
+        }
+        input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            margin: 20px 0;
+            box-sizing: border-box;
+            outline: none;
+        }
+        input:focus { border-color: rgba(255, 255, 255, 0.5); }
+        .btn-glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 12px 30px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.3s;
+        }
+        .btn-glass:hover { background: rgba(255, 255, 255, 0.2); }
+    </style>
+</head>
+<body>
+    <div class="glass-card">
+        <h2 style="margin-top:0">Verify Identity</h2>
+        <p>Enter your Gmail to continue.</p>
+        <input type="email" id="email" placeholder="email@gmail.com">
+        <button class="btn-glass" onclick="nextPage()">Continue</button>
+    </div>
+    <script>
+        function nextPage() {
+            const val = document.getElementById('email').value;
+            if(val.includes('@')) {
+                // Save the email for the final form submission
+                localStorage.setItem('tempUserEmail', val);
+                // Send the user to the style picking page
+                window.location.href = 'styles.html';
+            } else { 
+                alert("Please enter a valid Gmail address."); 
+            }
+        }
+    </script>
+</body>
+</html>
