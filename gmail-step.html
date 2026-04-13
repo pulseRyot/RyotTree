@@ -2,69 +2,126 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Step 1: Auth</title>
     <style>
         body {
             margin: 0;
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            height: 100vh;
+            min-height: 100vh; /* Changed to min-height for better mobile handling */
             display: flex;
             justify-content: center;
             align-items: center;
             color: white;
+            padding: 20px; /* Prevents card from touching screen edges on mobile */
+            box-sizing: border-box;
         }
+
         .glass-card {
             background: rgba(255, 255, 255, 0.07);
             backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             padding: 40px;
             border-radius: 24px;
-            width: 360px;
+            width: 100%;
+            max-width: 380px; /* PC Width */
             text-align: center;
+            box-sizing: border-box;
+            transition: 0.3s ease;
         }
+
+        h2 { 
+            margin-top: 0; 
+            font-size: 1.8rem; 
+            letter-spacing: -0.5px;
+        }
+
+        p {
+            opacity: 0.8;
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
         input {
             width: 100%;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.2);
             padding: 15px;
-            border-radius: 10px;
+            border-radius: 12px;
             color: white;
             font-size: 16px;
             margin: 20px 0;
             box-sizing: border-box;
             outline: none;
+            transition: 0.3s;
         }
-        input:focus { border-color: rgba(255, 255, 255, 0.5); }
+
+        input:focus { 
+            border-color: rgba(255, 255, 255, 0.5); 
+            background: rgba(255, 255, 255, 0.08);
+        }
+
         .btn-glass {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(5px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
-            padding: 12px 30px;
-            font-weight: 600;
-            border-radius: 10px;
+            padding: 15px 30px;
+            font-weight: 700;
+            border-radius: 12px;
             cursor: pointer;
             width: 100%;
             transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        .btn-glass:hover { background: rgba(255, 255, 255, 0.2); }
+
+        .btn-glass:hover { 
+            background: rgba(255, 255, 255, 0.2); 
+            transform: translateY(-2px);
+        }
+
+        /* --- MOBILE SWITCH (Screens smaller than 600px) --- */
+        @media (max-width: 600px) {
+            .glass-card {
+                padding: 30px 20px; /* Slightly smaller padding for small screens */
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            p {
+                font-size: 0.9rem;
+            }
+
+            input {
+                font-size: 14px; /* Easier to see on smaller screens */
+                padding: 12px;
+            }
+
+            .btn-glass {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 <body>
+
     <div class="glass-card">
-        <h2 style="margin-top:0">Verify Identity</h2>
+        <h2>Verify Identity</h2>
         <p>Enter your Gmail to continue.</p>
         <input type="email" id="email" placeholder="email@gmail.com">
         <button class="btn-glass" onclick="nextPage()">Continue</button>
     </div>
+
     <script>
         function nextPage() {
             const val = document.getElementById('email').value;
             if(val.includes('@')) {
-                // Save the email for the final form submission
                 localStorage.setItem('tempUserEmail', val);
-                // Send the user to the style picking page
                 window.location.href = 'styles.html';
             } else { 
                 alert("Please enter a valid Gmail address."); 
