@@ -2,28 +2,36 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Step 2: Socials</title>
     <style>
         body {
             margin: 0;
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             color: white;
+            padding: 20px; /* Essential for mobile spacing */
+            box-sizing: border-box;
         }
+
         .glass-card {
             background: rgba(255, 255, 255, 0.07);
             backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             padding: 40px;
             border-radius: 24px;
-            width: 380px;
+            width: 100%;
+            max-width: 400px; /* PC Width */
             position: relative;
+            box-sizing: border-box;
         }
+
         .nav-buttons { display: flex; gap: 10px; margin-bottom: 20px; }
+        
         .btn-nav {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -35,12 +43,17 @@
             flex: 1;
             text-align: center;
             text-transform: uppercase;
+            transition: 0.3s;
         }
+        .btn-nav:hover { background: rgba(255, 255, 255, 0.15); }
+
         label { 
             font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; 
             color: #ffffff; font-weight: 600; display: block;
             margin-bottom: 6px; opacity: 0.8;
+            text-align: left;
         }
+
         select, input {
             width: 100%;
             background: rgba(255, 255, 255, 0.1);
@@ -51,7 +64,9 @@
             margin-bottom: 20px;
             box-sizing: border-box;
             outline: none;
+            font-size: 16px; /* Prevents iOS auto-zoom on focus */
         }
+
         .btn-glass {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -63,9 +78,25 @@
             width: 100%;
             transition: 0.3s;
             text-transform: uppercase;
+            letter-spacing: 1px;
         }
+
         .btn-glass:hover { background: rgba(255, 255, 255, 0.25); transform: translateY(-2px); }
         .btn-glass:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* --- MOBILE SWITCH --- */
+        @media (max-width: 480px) {
+            .glass-card {
+                padding: 30px 20px;
+            }
+            
+            h3 { font-size: 1.2rem; }
+            
+            input, select {
+                padding: 10px;
+                margin-bottom: 15px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -101,7 +132,6 @@
     </div>
 
     <script>
-        // Load data, but NO automatic redirect here
         window.onload = function() {
             document.getElementById('hiddenEmail').value = localStorage.getItem('tempUserEmail') || "Unknown";
             const savedStyle = localStorage.getItem('selectedStyleName');
@@ -127,7 +157,6 @@
                 });
 
                 if (response.ok) {
-                    // This is the ONLY place where the redirect happens
                     window.location.href = 'confirmation.html'; 
                 } else {
                     alert("Submission error. Try again.");
