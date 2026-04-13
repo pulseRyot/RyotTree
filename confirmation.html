@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Processing</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 60px;
+            border-radius: 30px;
+        }
+        h2 { font-size: 2rem; margin-bottom: 10px; }
+        .loader {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="glass-card">
+        <h2>We're on it!</h2>
+        <p>Submission successful. Redirecting home shortly.</p>
+        <p style="opacity:0.6">Check your Gmail within 24 hours.</p>
+        <div class="loader"></div>
+    </div>
+    <script>
+        setTimeout(() => { window.location.href = 'index.html'; }, 5000);
+    </script>
+</body>
+</html>
