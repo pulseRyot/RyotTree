@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Step 2: Socials</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 40px;
+            border-radius: 24px;
+            width: 380px;
+            position: relative;
+        }
+
+        .nav-buttons {
+            display: flex; gap: 10px; margin-bottom: 20px;
+        }
+
+        .btn-nav {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 11px;
+            text-decoration: none;
+            display: inline-block;
+            transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            flex: 1;
+            text-align: center;
+        }
+        .btn-nav:hover { background: rgba(255, 255, 255, 0.15); }
+
+        label { 
+            font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; 
+            color: #ffffff; font-weight: 600; display: block;
+            margin-bottom: 6px; opacity: 0.8;
+        }
+
+        select, input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 12px;
+            border-radius: 8px;
+            color: white;
+            margin: 0 0 20px 0;
+            box-sizing: border-box;
+            outline: none;
+            font-family: inherit;
+        }
+
+        select option { background: #24243e; color: white; }
+
+        .btn-glass {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 15px;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn-glass:hover { background: rgba(255, 255, 255, 0.25); transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+    <div class="glass-card">
+        <div class="nav-buttons">
+            <a href="index.html" class="btn-nav">← Home</a>
+            <a href="styles.html" class="btn-nav">Styles</a>
+        </div>
+
+        <h3 style="margin-top:0; text-align:center; font-weight: 800; letter-spacing: -0.5px;">LinkTree Setup</h3>
+        
+        <form action="https://formspree.io/f/meevqloo" method="POST" id="linkForm">
+            <input type="hidden" name="Customer_Email" id="hiddenEmail">
+            
+            <label>Choose Your Style</label>
+            <select name="Selected_Style" id="styleChoice" onchange="localStorage.setItem('selectedStyleName', this.value)">
+                <option value="Blue">Blue</option>
+                <option value="Red">Red</option>
+                <option value="Green">Green</option>
+            </select>
+            
+            <label>TikTok</label>
+            <input type="url" name="TikTok" id="tiktok" placeholder="https://tiktok.com/@yourname" required>
+            
+            <label>Discord</label>
+            <input type="url" name="Discord" id="discord" placeholder="https://discord.gg/invite">
+            
+            <label>YouTube</label>
+            <input type="url" name="YouTube" id="youtube" placeholder="https://youtube.com/c/channel">
+            
+            <button type="submit" class="btn-glass">Finish Linktree</button>
+        </form>
+    </div>
+
+    <script>
+        window.onload = function() {
+            const savedEmail = localStorage.getItem('tempUserEmail') || "Unknown";
+            const savedStyle = localStorage.getItem('selectedStyleName');
+
+            document.getElementById('hiddenEmail').value = savedEmail;
+
+            if (savedStyle) {
+                document.getElementById('styleChoice').value = savedStyle;
+            }
+        };
+
+        // Handle Confirmation if links are missing
+        document.getElementById('linkForm').onsubmit = function(e) {
+            const discord = document.getElementById('discord').value;
+            const youtube = document.getElementById('youtube').value;
+
+            if (!discord || !youtube) {
+                const confirmMissing = confirm("You haven't filled in all the social links. Do you want to continue anyway?");
+                if (!confirmMissing) {
+                    e.preventDefault(); // Stop the form from submitting
+                    return false;
+                }
+            }
+        };
+    </script>
+</body>
+</html>
