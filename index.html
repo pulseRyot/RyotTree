@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkTree | Modern</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: white;
+            overflow: hidden;
+            align-items: center; 
+        }
+
+        .top-nav {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+
+        .btn-account {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .btn-account:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: white;
+        }
+        
+        header { 
+            padding: 80px 20px 40px 20px; 
+            text-align: center;
+        }
+
+        /* MODERN WELCOME TEXT STYLING */
+        #welcome-text {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            
+            /* Gradient Text Effect */
+            background: linear-gradient(90deg, #00f2fe 0%, #4facfe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            
+            /* Animation */
+            animation: fadeIn 0.8s ease-out forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 { 
+            font-weight: 800; 
+            font-size: 3.5rem; 
+            margin: 0; 
+            letter-spacing: -1.5px; 
+            background: linear-gradient(to bottom, #ffffff, #b0b0b0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p { 
+            opacity: 0.7; 
+            font-size: 1.2rem; 
+            margin-top: 10px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-images { 
+            display: flex; 
+            justify-content: center; 
+            gap: 25px; 
+            margin-top: 30px; 
+        }
+
+        .example-img { 
+            width: 140px; 
+            height: 220px; 
+            background: rgba(255, 255, 255, 0.03); 
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            transition: 0.4s ease;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .img-1 { background-image: url('https://cdn.discordapp.com/attachments/1101409428944724000/1493333153899872338/Style_-_1.png?ex=69de9660&is=69dd44e0&hm=19c853d6832b86333070c16ed841cd9958d626f796d9ba0bb58a9c8f7ec96559&'); }
+        .img-2 { background-image: url('https://cdn.discordapp.com/attachments/1101409428944724000/1493334445846040749/Style_-_2.png?ex=69de9794&is=69dd4614&hm=0562d27843d1220980ac89d77333a7a66bbac1fb64ea67bd1e99915f9a771065&'); }
+        .img-3 { background-image: url('https://cdn.discordapp.com/attachments/1101409428944724000/1493335823217852487/Style_-_3.png?ex=69de98dd&is=69dd475d&hm=efb26972d5638242fd4fc7266b6c438fecb3d001fff9fd0e31c6efe4ff704947&'); }
+        
+        .example-img:hover {
+            transform: translateY(-10px) scale(1.05);
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .btn-glass {
+            margin-top: 60px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 20px 50px;
+            font-size: 18px;
+            font-weight: 700;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-glass:hover {
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            transform: translateY(-3px);
+            border-color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-nav">
+        <button class="btn-account" id="accountBtn" onclick="handleAccount()">Create Account</button>
+    </div>
+
+    <header>
+        <span id="welcome-text"></span>
+        <h1>LinkTree</h1>
+        <p>A premium home for your social presence. Elegant, fast, and completely yours.</p>
+    </header>
+    
+    <div class="hero-images">
+        <div class="example-img img-1"></div>
+        <div class="example-img img-2"></div>
+        <div class="example-img img-3"></div>
+    </div>
+    
+    <button class="btn-glass" onclick="window.location.href='gmail-step.html'">Build Your Link Tree</button>
+
+    <script>
+        window.onload = function() {
+            const savedUser = localStorage.getItem('linktreeUser');
+            if (savedUser) {
+                updateUI(savedUser);
+            }
+        };
+
+        function handleAccount() {
+            const savedUser = localStorage.getItem('linktreeUser');
+            
+            if (savedUser) {
+                if(confirm("Sign out of " + savedUser + "?")) {
+                    localStorage.removeItem('linktreeUser');
+                    location.reload();
+                }
+            } else {
+                const name = prompt("Enter a username to create your account:");
+                if (name && name.trim() !== "") {
+                    localStorage.setItem('linktreeUser', name);
+                    updateUI(name);
+                }
+            }
+        }
+
+        function updateUI(name) {
+            const welcomeEl = document.getElementById('welcome-text');
+            welcomeEl.innerText = "Welcome back, " + name + "!";
+            // Reset animation in case they just "logged in"
+            welcomeEl.style.animation = 'none';
+            welcomeEl.offsetHeight; /* trigger reflow */
+            welcomeEl.style.animation = null; 
+            
+            document.getElementById('accountBtn').innerText = "Logout";
+        }
+    </script>
+</body>
+</html>
