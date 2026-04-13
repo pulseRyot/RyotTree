@@ -14,74 +14,142 @@
             flex-direction: column;
             color: white;
             align-items: center; 
-            padding-bottom: 100px;
+            padding-bottom: 120px; /* Space for the bottom action bar */
         }
         
-        header { padding: 40px 20px; text-align: center; }
-        h1 { font-weight: 800; font-size: 2.5rem; margin: 0; }
+        header { padding: 60px 20px 30px 20px; text-align: center; }
+        
+        h1 { 
+            font-weight: 800; 
+            font-size: 2.5rem; 
+            margin: 0; 
+            letter-spacing: -1px;
+        }
 
+        /* --- RESPONSIVE GRID --- */
         .gallery-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
+            /* PC: 3 columns | Tablet: 2 | Phone: 1 */
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
             width: 90%;
-            max-width: 1000px;
+            max-width: 1100px;
+            padding: 20px;
+            box-sizing: border-box;
         }
 
         .style-card {
             background: rgba(255, 255, 255, 0.05); 
             border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
+            border-radius: 24px;
             cursor: pointer;
             overflow: hidden;
-            transition: 0.3s;
+            transition: transform 0.3s, border-color 0.3s, background 0.3s;
+            position: relative;
+        }
+
+        .style-card:hover {
+            border-color: rgba(255, 255, 255, 0.3);
         }
 
         .style-card.selected {
             border-color: #ffffff;
-            transform: scale(1.02);
+            transform: scale(1.03);
             background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
         .preview-box {
-            height: 180px;
+            height: 200px;
             background: #111;
+            overflow: hidden;
         }
 
         .preview-box img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            transition: 0.5s;
         }
 
-        .card-info { padding: 15px; text-align: center; font-weight: 600; }
+        .style-card:hover .preview-box img {
+            transform: scale(1.1);
+        }
 
+        .card-info { 
+            padding: 20px; 
+            text-align: center; 
+            font-weight: 700; 
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* --- BOTTOM ACTION BAR --- */
         .action-bar {
             position: fixed;
             bottom: 0;
-            width: 100%;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.9);
+            left: 0;
+            right: 0;
+            padding: 25px;
+            background: rgba(15, 12, 41, 0.8);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             justify-content: center;
-            z-index: 100;
+            z-index: 1000;
         }
 
         .btn-continue {
             background: white;
             color: black;
-            padding: 15px 60px;
-            border-radius: 12px;
+            padding: 16px 80px;
+            border-radius: 16px;
             font-weight: 800;
             text-decoration: none;
-            opacity: 0.5;
+            opacity: 0.3;
             pointer-events: none;
-            transition: 0.3s;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(255,255,255,0.2);
         }
 
         .btn-continue.ready {
             opacity: 1;
             pointer-events: auto;
+            transform: translateY(0);
+        }
+
+        .btn-continue.ready:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255,255,255,0.4);
+        }
+
+        /* --- MOBILE ADJUSTMENTS --- */
+        @media (max-width: 600px) {
+            header { padding: 40px 20px 20px 20px; }
+            h1 { font-size: 1.8rem; }
+            
+            .gallery-grid {
+                grid-template-columns: 1fr; /* Force single column on phone */
+                gap: 20px;
+                padding: 10px;
+            }
+
+            .preview-box { height: 160px; }
+
+            .action-bar {
+                padding: 15px;
+            }
+
+            .btn-continue {
+                padding: 14px 0;
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
@@ -96,35 +164,33 @@
             <div class="preview-box">
                 <img src="https://cdn.discordapp.com/attachments/1101409428944724000/1493332023861973154/Untitled1.png?ex=69de9553&is=69dd43d3&hm=6c2663db77ee49f6254ef826fb18855415cee18850cc55953c01534a8f3e2122&">
             </div>
-            <div class="card-info">Blue</div>
+            <div class="card-info">Ocean Blue</div>
         </div>
 
         <div id="card-Red" class="style-card" onclick="pickStyle(this, 'Red', 'linear-gradient(45deg, #ee0979, #ff6a00)')">
             <div class="preview-box">
                 <img src="https://cdn.discordapp.com/attachments/1101409428944724000/1493333820865253547/Style_-_2.png?ex=69de96ff&is=69dd457f&hm=20b3fef62a9500ea0735a542b758565aa3bd13d727b7246cf8142b3fbbacaa35&">
             </div>
-            <div class="card-info">Red</div>
+            <div class="card-info">Sunset Red</div>
         </div>
 
         <div id="card-Green" class="style-card" onclick="pickStyle(this, 'Green', 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)')">
             <div class="preview-box">
                 <img src="https://cdn.discordapp.com/attachments/1101409428944724000/1493335297696600264/Style_-_3.png?ex=69de985f&is=69dd46df&hm=3024674e01501a555feafaf5a6659f933379e39a5c1a5508a2f84d16fc05b855&">
             </div>
-            <div class="card-info">Green</div>
+            <div class="card-info">Midnight Green</div>
         </div>
     </div>
 
     <div class="action-bar">
-        <a href="links-step.html" class="btn-continue" id="nextBtn">Continue →</a>
+        <a href="links-step.html" class="btn-continue" id="nextBtn">Select a Style</a>
     </div>
 
     <script>
-        // Runs as soon as the page loads
         window.onload = function() {
             const savedName = localStorage.getItem('selectedStyleName');
             const savedCSS = localStorage.getItem('selectedLinkTreeStyle');
             
-            // If they already picked a style before, re-select it automatically
             if (savedName && savedCSS) {
                 const selectedCard = document.getElementById('card-' + savedName);
                 if (selectedCard) {
@@ -134,15 +200,12 @@
         };
 
         function pickStyle(card, styleName, cssValue) {
-            // 1. Highlight selection visually
             document.querySelectorAll('.style-card').forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
 
-            // 2. Save choice to local storage
             localStorage.setItem('selectedLinkTreeStyle', cssValue);
             localStorage.setItem('selectedStyleName', styleName); 
 
-            // 3. Update the button to show it's ready
             const nextBtn = document.getElementById('nextBtn');
             nextBtn.classList.add('ready');
             nextBtn.innerText = "Confirm " + styleName + " →";
