@@ -9,14 +9,15 @@
             margin: 0;
             font-family: 'Inter', -apple-system, sans-serif;
             background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             color: white;
-            overflow: hidden;
+            overflow-x: hidden;
             align-items: center; 
         }
 
+        /* --- Desktop (PC) Navigation --- */
         .top-nav {
             position: absolute;
             top: 20px;
@@ -38,45 +39,16 @@
             font-size: 14px;
         }
 
-        .btn-account:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: white;
-        }
-        
         header { 
-            padding: 80px 20px 40px 20px; 
+            padding: 100px 20px 40px 20px; 
             text-align: center;
-        }
-
-        /* MODERN WELCOME TEXT STYLING */
-        #welcome-text {
-            font-weight: 700;
-            font-size: 1.1rem;
-            margin-bottom: 8px;
-            display: block;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            
-            /* Gradient Text Effect */
-            background: linear-gradient(90deg, #00f2fe 0%, #4facfe 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            
-            /* Animation */
-            animation: fadeIn 0.8s ease-out forwards;
-            opacity: 0;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-5px); }
-            to { opacity: 1; transform: translateY(0); }
         }
 
         h1 { 
             font-weight: 800; 
-            font-size: 3.5rem; 
+            font-size: 4rem; /* Big for PC */
             margin: 0; 
-            letter-spacing: -1.5px; 
+            letter-spacing: -2px; 
             background: linear-gradient(to bottom, #ffffff, #b0b0b0);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -85,44 +57,39 @@
         p { 
             opacity: 0.7; 
             font-size: 1.2rem; 
-            margin-top: 10px;
+            margin-top: 15px;
             max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
+            line-height: 1.6;
         }
 
+        /* --- Hero Images Grid --- */
         .hero-images { 
             display: flex; 
             justify-content: center; 
             gap: 25px; 
-            margin-top: 30px; 
+            margin-top: 40px; 
+            padding: 0 20px;
         }
 
         .example-img { 
-            width: 140px; 
-            height: 220px; 
+            width: 160px; 
+            height: 250px; 
             background: rgba(255, 255, 255, 0.03); 
             backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 24px;
             transition: 0.4s ease;
-            overflow: hidden;
             background-size: cover;
             background-position: center;
         }
 
+        /* Styles for images */
         .img-1 { background-image: url('https://cdn.discordapp.com/attachments/1101409428944724000/1493333153899872338/Style_-_1.png?ex=69de9660&is=69dd44e0&hm=19c853d6832b86333070c16ed841cd9958d626f796d9ba0bb58a9c8f7ec96559&'); }
         .img-2 { background-image: url('https://cdn.discordapp.com/attachments/1101409428944724000/1493334445846040749/Style_-_2.png?ex=69de9794&is=69dd4614&hm=0562d27843d1220980ac89d77333a7a66bbac1fb64ea67bd1e99915f9a771065&'); }
         .img-3 { background-image: url('https://cdn.discordapp.com/attachments/1101409428944724000/1493335823217852487/Style_-_3.png?ex=69de98dd&is=69dd475d&hm=efb26972d5638242fd4fc7266b6c438fecb3d001fff9fd0e31c6efe4ff704947&'); }
-        
-        .example-img:hover {
-            transform: translateY(-10px) scale(1.05);
-            border-color: rgba(255, 255, 255, 0.5);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-        }
 
         .btn-glass {
-            margin-top: 60px;
+            margin: 60px 0;
             background: rgba(255, 255, 255, 0.08);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -132,16 +99,58 @@
             font-weight: 700;
             border-radius: 16px;
             cursor: pointer;
-            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: 0.3s;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
-        .btn-glass:hover {
-            background: rgba(255, 255, 255, 0.15);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-            transform: translateY(-3px);
-            border-color: white;
+        /* ======================================================
+           MOBILE SWITCH (Screens smaller than 768px)
+           ====================================================== */
+        @media (max-width: 768px) {
+            header {
+                padding: 80px 20px 20px 20px;
+            }
+
+            h1 {
+                font-size: 2.8rem; /* Smaller title for mobile */
+            }
+
+            p {
+                font-size: 1rem;
+                max-width: 90%;
+            }
+
+            .hero-images {
+                gap: 12px;
+                flex-wrap: nowrap; /* Keep them in a row */
+                overflow-x: auto;  /* Allow sideways swipe on phone */
+                width: 100vw;
+                padding: 10px 40px;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .example-img {
+                width: 130px; /* Slimmer images for phone */
+                height: 200px;
+                flex-shrink: 0; /* Stop them from squishing */
+            }
+
+            .btn-glass {
+                width: 85%; /* Wide button for easy thumb tapping */
+                padding: 18px 0;
+                font-size: 16px;
+                margin: 40px 0;
+            }
+
+            .top-nav {
+                top: 15px;
+                right: 15px;
+            }
+
+            .btn-account {
+                padding: 8px 15px;
+                font-size: 12px;
+            }
         }
     </style>
 </head>
@@ -166,40 +175,7 @@
     <button class="btn-glass" onclick="window.location.href='gmail-step.html'">Build Your Link Tree</button>
 
     <script>
-        window.onload = function() {
-            const savedUser = localStorage.getItem('linktreeUser');
-            if (savedUser) {
-                updateUI(savedUser);
-            }
-        };
-
-        function handleAccount() {
-            const savedUser = localStorage.getItem('linktreeUser');
-            
-            if (savedUser) {
-                if(confirm("Sign out of " + savedUser + "?")) {
-                    localStorage.removeItem('linktreeUser');
-                    location.reload();
-                }
-            } else {
-                const name = prompt("Enter a username to create your account:");
-                if (name && name.trim() !== "") {
-                    localStorage.setItem('linktreeUser', name);
-                    updateUI(name);
-                }
-            }
-        }
-
-        function updateUI(name) {
-            const welcomeEl = document.getElementById('welcome-text');
-            welcomeEl.innerText = "Welcome back, " + name + "!";
-            // Reset animation in case they just "logged in"
-            welcomeEl.style.animation = 'none';
-            welcomeEl.offsetHeight; /* trigger reflow */
-            welcomeEl.style.animation = null; 
-            
-            document.getElementById('accountBtn').innerText = "Logout";
-        }
+        // ... (Keep your existing script for accounts)
     </script>
 </body>
 </html>
