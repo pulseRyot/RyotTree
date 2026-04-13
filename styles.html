@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Your Style | LinkTree</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: #0f0c29;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: white;
+            align-items: center; 
+            padding-bottom: 100px;
+        }
+        
+        header { padding: 40px 20px; text-align: center; }
+        h1 { font-weight: 800; font-size: 2.5rem; margin: 0; }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            width: 90%;
+            max-width: 1000px;
+        }
+
+        .style-card {
+            background: rgba(255, 255, 255, 0.05); 
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            cursor: pointer;
+            overflow: hidden;
+            transition: 0.3s;
+        }
+
+        .style-card.selected {
+            border-color: #ffffff;
+            transform: scale(1.02);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .preview-box {
+            height: 180px;
+            background: #111;
+        }
+
+        .preview-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-info { padding: 15px; text-align: center; font-weight: 600; }
+
+        .action-bar {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .btn-continue {
+            background: white;
+            color: black;
+            padding: 15px 60px;
+            border-radius: 12px;
+            font-weight: 800;
+            text-decoration: none;
+            opacity: 0.5;
+            pointer-events: none;
+            transition: 0.3s;
+        }
+
+        .btn-continue.ready {
+            opacity: 1;
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Pick Your Style</h1>
+    </header>
+
+    <div class="gallery-grid">
+        <div id="card-Blue" class="style-card" onclick="pickStyle(this, 'Blue', 'linear-gradient(180deg, #001529 0%, #00a8ff 100%)')">
+            <div class="preview-box">
+                <img src="https://cdn.discordapp.com/attachments/1101409428944724000/1493332023861973154/Untitled1.png?ex=69de9553&is=69dd43d3&hm=6c2663db77ee49f6254ef826fb18855415cee18850cc55953c01534a8f3e2122&">
+            </div>
+            <div class="card-info">Blue</div>
+        </div>
+
+        <div id="card-Red" class="style-card" onclick="pickStyle(this, 'Red', 'linear-gradient(45deg, #ee0979, #ff6a00)')">
+            <div class="preview-box">
+                <img src="https://cdn.discordapp.com/attachments/1101409428944724000/1493333820865253547/Style_-_2.png?ex=69de96ff&is=69dd457f&hm=20b3fef62a9500ea0735a542b758565aa3bd13d727b7246cf8142b3fbbacaa35&">
+            </div>
+            <div class="card-info">Red</div>
+        </div>
+
+        <div id="card-Green" class="style-card" onclick="pickStyle(this, 'Green', 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)')">
+            <div class="preview-box">
+                <img src="https://cdn.discordapp.com/attachments/1101409428944724000/1493335297696600264/Style_-_3.png?ex=69de985f&is=69dd46df&hm=3024674e01501a555feafaf5a6659f933379e39a5c1a5508a2f84d16fc05b855&">
+            </div>
+            <div class="card-info">Green</div>
+        </div>
+    </div>
+
+    <div class="action-bar">
+        <a href="links-step.html" class="btn-continue" id="nextBtn">Continue →</a>
+    </div>
+
+    <script>
+        // Runs as soon as the page loads
+        window.onload = function() {
+            const savedName = localStorage.getItem('selectedStyleName');
+            const savedCSS = localStorage.getItem('selectedLinkTreeStyle');
+            
+            // If they already picked a style before, re-select it automatically
+            if (savedName && savedCSS) {
+                const selectedCard = document.getElementById('card-' + savedName);
+                if (selectedCard) {
+                    pickStyle(selectedCard, savedName, savedCSS);
+                }
+            }
+        };
+
+        function pickStyle(card, styleName, cssValue) {
+            // 1. Highlight selection visually
+            document.querySelectorAll('.style-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+
+            // 2. Save choice to local storage
+            localStorage.setItem('selectedLinkTreeStyle', cssValue);
+            localStorage.setItem('selectedStyleName', styleName); 
+
+            // 3. Update the button to show it's ready
+            const nextBtn = document.getElementById('nextBtn');
+            nextBtn.classList.add('ready');
+            nextBtn.innerText = "Confirm " + styleName + " →";
+        }
+    </script>
+</body>
+</html>
