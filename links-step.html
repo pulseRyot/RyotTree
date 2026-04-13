@@ -23,11 +23,7 @@
             width: 380px;
             position: relative;
         }
-
-        .nav-buttons {
-            display: flex; gap: 10px; margin-bottom: 20px;
-        }
-
+        .nav-buttons { display: flex; gap: 10px; margin-bottom: 20px; }
         .btn-nav {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -36,21 +32,15 @@
             border-radius: 8px;
             font-size: 11px;
             text-decoration: none;
-            display: inline-block;
-            transition: 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
             flex: 1;
             text-align: center;
+            text-transform: uppercase;
         }
-        .btn-nav:hover { background: rgba(255, 255, 255, 0.15); }
-
         label { 
             font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; 
             color: #ffffff; font-weight: 600; display: block;
             margin-bottom: 6px; opacity: 0.8;
         }
-
         select, input {
             width: 100%;
             background: rgba(255, 255, 255, 0.1);
@@ -58,14 +48,10 @@
             padding: 12px;
             border-radius: 8px;
             color: white;
-            margin: 0 0 20px 0;
+            margin-bottom: 20px;
             box-sizing: border-box;
             outline: none;
-            font-family: inherit;
         }
-
-        select option { background: #24243e; color: white; }
-
         .btn-glass {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -77,9 +63,9 @@
             width: 100%;
             transition: 0.3s;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
         .btn-glass:hover { background: rgba(255, 255, 255, 0.25); transform: translateY(-2px); }
+        .btn-glass:disabled { opacity: 0.5; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -89,14 +75,13 @@
             <a href="styles.html" class="btn-nav">Styles</a>
         </div>
 
-        <h3 style="margin-top:0; text-align:center; font-weight: 800; letter-spacing: -0.5px;">LinkTree Setup</h3>
+        <h3 style="margin-top:0; text-align:center; font-weight: 800;">LinkTree Setup</h3>
         
-        <form action="https://formspree.io/f/meevqloo" method="POST" id="linkForm">
+        <form id="linkForm">
             <input type="hidden" name="Customer_Email" id="hiddenEmail">
-            <input type="hidden" name="_next" value="confirmation.html"> 
             
             <label>Choose Your Style</label>
-            <select name="Selected_Style" id="styleChoice" onchange="localStorage.setItem('selectedStyleName', this.value)">
+            <select name="Selected_Style" id="styleChoice">
                 <option value="Blue">Blue</option>
                 <option value="Red">Red</option>
                 <option value="Green">Green</option>
@@ -111,45 +96,50 @@
             <label>YouTube</label>
             <input type="url" name="YouTube" id="youtube" placeholder="https://youtube.com/c/channel">
             
-            <button type="submit" class="btn-glass">Finish Linktree</button>
+            <button type="submit" id="submitBtn" class="btn-glass">Finish Linktree</button>
         </form>
     </div>
 
     <script>
+        // Load data, but NO automatic redirect here
         window.onload = function() {
-            // REDIRECT LOGIC: If they already finished, don't show the form
-            if (sessionStorage.getItem('formFinished') === 'true') {
-                window.location.href = 'confirmation.html';
-                return; // Stop further execution
-            }
-
-            // Load persistent data
-            const savedEmail = localStorage.getItem('tempUserEmail') || "Unknown";
+            document.getElementById('hiddenEmail').value = localStorage.getItem('tempUserEmail') || "Unknown";
             const savedStyle = localStorage.getItem('selectedStyleName');
-
-            document.getElementById('hiddenEmail').value = savedEmail;
-
-            if (savedStyle) {
-                document.getElementById('styleChoice').value = savedStyle;
-            }
+            if (savedStyle) document.getElementById('styleChoice').value = savedStyle;
         };
 
-        // Handle Submission
-        document.getElementById('linkForm').onsubmit = function(e) {
-            const discord = document.getElementById('discord').value;
-            const youtube = document.getElementById('youtube').value;
+        const form = document.getElementById('linkForm');
+        const btn = document.getElementById('submitBtn');
 
-            if (!discord || !youtube) {
-                const confirmMissing = confirm("You haven't filled in all the social links. Do you want to continue anyway?");
-                if (!confirmMissing) {
-                    e.preventDefault();
-                    return false;
+        form.addEventListener("submit", async function(e) {
+            e.preventDefault(); 
+            
+            btn.disabled = true;
+            btn.innerText = "Saving...";
+
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch("https://formspree.io/f/meevqloo", {
+                    method: "POST",
+                    body: formData,
+                    headers: { 'Accept': 'application/json' }
+                });
+
+                if (response.ok) {
+                    // This is the ONLY place where the redirect happens
+                    window.location.href = 'confirmation.html'; 
+                } else {
+                    alert("Submission error. Try again.");
+                    btn.disabled = false;
+                    btn.innerText = "Finish Linktree";
                 }
+            } catch (error) {
+                alert("Network error.");
+                btn.disabled = false;
+                btn.innerText = "Finish Linktree";
             }
-
-            // Set the flag so if they go "Back", they see the confirmation page instead
-            sessionStorage.setItem('formFinished', 'true');
-        };
+        });
     </script>
 </body>
 </html>
