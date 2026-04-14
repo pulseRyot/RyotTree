@@ -104,6 +104,23 @@
             box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
         }
 
+        /* --- Message Styling --- */
+        #statusMessage {
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 15px;
+            display: none; 
+        }
+
+        .error { color: #ff4d4d; animation: shake 0.4s ease; }
+        .success { color: #4eff91; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
         .footer-link {
             margin-top: 25px;
             font-size: 0.85rem;
@@ -114,11 +131,6 @@
             color: white;
             text-decoration: none;
             font-weight: 700;
-        }
-
-        @media (max-width: 480px) {
-            .glass-card { padding: 30px 20px; }
-            h2 { font-size: 1.6rem; }
         }
     </style>
 </head>
@@ -141,7 +153,8 @@
                 <input type="password" id="password" placeholder="••••••••" required>
             </div>
 
-            <button type="submit" class="btn-glass">Log In</button>
+            <button type="submit" id="loginBtn" class="btn-glass">Log In</button>
+            <div id="statusMessage"></div>
         </form>
 
         <div class="footer-link">
@@ -150,28 +163,67 @@
     </div>
 
     <script>
-        // Check if we already have a username saved to greet them
+        // On load, check if there's an offline user saved
         window.onload = function() {
             const savedUser = localStorage.getItem('tempUsername');
             if (savedUser) {
                 document.getElementById('loginTitle').innerText = "Hi, " + savedUser;
+                document.getElementById('identifier').value = savedUser;
             }
         };
 
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            const identifier = document.getElementById('identifier').value;
+            const enteredPass = document.getElementById('password').value;
+            const enteredUser = document.getElementById('identifier').value;
+            const statusDiv = document.getElementById('statusMessage');
             
-            // 1. Mark the user as logged in
+            // 1. Pull the data from the device's offline storage
+            const storedPass = localStorage.getItem('tempUserPassword');
+            const storedUser = localStorage.getItem('tempUsername');
+            const storedEmail = localStorage.getItem('tempUserEmail');
+
+            // 2. ERROR LOGIC:
+            // Check if account exists on this device
+            if (!storedPass) {
+                showMessage("No account found on this device. Please sign up.", "error");
+                return;
+            }
+
+            // Check if the username/email matches AND the password matches
+            const isUserValid = (enteredUser === storedUser || enteredUser === storedEmail);
+            
+            if (!isUserValid || enteredPass !== storedPass) {
+                showMessage("Invalid credentials. Please try again.", "error");
+                return; 
+            }
+
+            // 3. SUCCESS LOGIC
+            showMessage("Logging you in...", "success");
+            
             localStorage.setItem('isLoggedIn', 'true');
+            // Ensure the latest identifier used is saved as the display name
+            localStorage.setItem('tempUsername', storedUser); 
             
-            // 2. Save the username so other pages can display it
-            localStorage.setItem('tempUsername', identifier);
-            
-            // 3. Redirect back to home
-            window.location.href = 'index.html';
+            // Short delay for the "Success" feel
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 800);
         });
+
+        function showMessage(text, type) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.innerText = text;
+            statusDiv.className = type; // Adds 'error' or 'success' class
+            statusDiv.style.display = "block";
+
+            if (type === 'error') {
+                statusDiv.style.animation = 'none';
+                statusDiv.offsetHeight; /* trigger reflow */
+                statusDiv.style.animation = null; 
+            }
+        }
     </script>
 
 </body>
