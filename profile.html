@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Profile | LinkTree</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
         body {
             margin: 0;
@@ -145,7 +148,7 @@
                 <input type="password" id="confirmPassword" placeholder="••••••••" required>
             </div>
 
-            <button type="submit" class="btn-glass">Next Step</button>
+            <button type="submit" class="btn-glass" id="submitBtn">Next Step</button>
         </form>
 
         <div class="footer-link">
@@ -154,46 +157,74 @@
     </div>
 
     <script>
-        document.getElementById('profileForm').addEventListener('submit', function(e) {
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyDjcNWpd7-zN4l--bdz_6NviRUthNnbZ5U",
+            authDomain: "linktree-a41ae.firebaseapp.com",
+            projectId: "linktree-a41ae",
+            storageBucket: "linktree-a41ae.firebasestorage.app",
+            messagingSenderId: "829854289113",
+            appId: "1:829854289113:web:e625d84c546ed06b18c2c8",
+            measurementId: "G-KN941EBYQM"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        document.getElementById('profileForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const emailInput = document.getElementById('email').value.trim().toLowerCase();
-            const usernameInput = document.getElementById('username').value.trim();
+            const submitBtn = document.getElementById('submitBtn');
+            const email = document.getElementById('email').value.trim().toLowerCase();
+            const username = document.getElementById('username').value.trim();
             const pass = document.getElementById('password').value;
             const confirmPass = document.getElementById('confirmPassword').value;
 
-            // 1. UNIQUE CHECK: Check if Username or Email is already taken
-            const existingEmail = localStorage.getItem('tempUserEmail');
-            const existingUsername = localStorage.getItem('tempUsername');
-
-            if (existingUsername && existingUsername === usernameInput) {
-                alert("This username is already taken. Please choose another.");
-                return;
-            }
-
-            if (existingEmail && existingEmail.toLowerCase() === emailInput) {
-                alert("This email is already registered. Please log in.");
-                return;
-            }
-
-            // 2. Password Match Check
+            // 1. Client-side Validation
             if (pass !== confirmPass) {
                 alert("Passwords do not match!");
                 return;
             }
-            
-            // 3. Save to Offline Storage
-            localStorage.setItem('tempUserEmail', emailInput);
-            localStorage.setItem('tempUsername', usernameInput);
-            localStorage.setItem('tempUserPassword', pass);
-            
-            // 4. Update Status
-            localStorage.setItem('isLoggedIn', 'true');
-            
-            // 5. Success redirect
-            window.location.href = 'styles.html';
+
+            // Disable button during process
+            submitBtn.innerText = "Creating Account...";
+            submitBtn.disabled = true;
+
+            try {
+                // 2. UNIQUE USERNAME CHECK (Global Firestore Check)
+                const usernameDoc = await db.collection("users").where("username", "==", username).get();
+                if (!usernameDoc.empty) {
+                    alert("This username is already taken. Please choose another.");
+                    submitBtn.innerText = "Next Step";
+                    submitBtn.disabled = false;
+                    return;
+                }
+
+                // 3. CREATE ACCOUNT IN FIREBASE AUTH
+                const userCredential = await auth.createUserWithEmailAndPassword(email, pass);
+                const user = userCredential.user;
+
+                // 4. SAVE PROFILE TO FIRESTORE DATABASE
+                await db.collection("users").doc(user.uid).set({
+                    username: username,
+                    email: email,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // 5. Update Local Session & Redirect
+                localStorage.setItem('tempUsername', username);
+                localStorage.setItem('isLoggedIn', 'true');
+                
+                window.location.href = 'styles.html';
+
+            } catch (error) {
+                alert("Signup failed: " + error.message);
+                submitBtn.innerText = "Next Step";
+                submitBtn.disabled = false;
+            }
         });
     </script>
-
 </body>
 </html>
