@@ -9,12 +9,12 @@
             margin: 0;
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            min-height: 100vh; /* Changed to min-height for better mobile handling */
+            min-height: 100vh; 
             display: flex;
             justify-content: center;
             align-items: center;
             color: white;
-            padding: 20px; /* Prevents card from touching screen edges on mobile */
+            padding: 20px;
             box-sizing: border-box;
         }
 
@@ -25,10 +25,26 @@
             padding: 40px;
             border-radius: 24px;
             width: 100%;
-            max-width: 380px; /* PC Width */
+            max-width: 380px;
             text-align: center;
             box-sizing: border-box;
-            transition: 0.3s ease;
+            position: relative;
+        }
+
+        .back-link {
+            display: block;
+            text-align: left;
+            margin-bottom: 20px;
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .back-link:hover {
+            color: white;
+            transform: translateX(-3px);
         }
 
         h2 { 
@@ -82,42 +98,48 @@
             transform: translateY(-2px);
         }
 
-        /* --- MOBILE SWITCH (Screens smaller than 600px) --- */
         @media (max-width: 600px) {
-            .glass-card {
-                padding: 30px 20px; /* Slightly smaller padding for small screens */
-            }
-
-            h2 {
-                font-size: 1.5rem;
-            }
-
-            p {
-                font-size: 0.9rem;
-            }
-
-            input {
-                font-size: 14px; /* Easier to see on smaller screens */
-                padding: 12px;
-            }
-
-            .btn-glass {
-                padding: 12px 20px;
-                font-size: 14px;
-            }
+            .glass-card { padding: 30px 20px; }
+            h2 { font-size: 1.5rem; }
+            p { font-size: 0.9rem; }
+            input { font-size: 14px; padding: 12px; }
+            .btn-glass { padding: 12px 20px; font-size: 14px; }
         }
     </style>
 </head>
 <body>
 
     <div class="glass-card">
-        <h2>Verify Identity</h2>
-        <p>Enter your Gmail to continue.</p>
-        <input type="email" id="email" placeholder="email@gmail.com">
-        <button class="btn-glass" onclick="nextPage()">Continue</button>
+        <a href="index.html" class="back-link">← Back to Home</a>
+
+        <h2 id="statusTitle">Verify Identity</h2>
+        <p id="statusDesc">Enter your Gmail to continue.</p>
+        
+        <div id="inputContainer">
+            <input type="email" id="email" placeholder="email@gmail.com">
+            <button class="btn-glass" onclick="nextPage()">Continue</button>
+        </div>
     </div>
 
     <script>
+        window.onload = function() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            const savedEmail = localStorage.getItem('tempUserEmail');
+
+            // If the user is already logged in and we have their email...
+            if (isLoggedIn === 'true' && savedEmail) {
+                // Update the UI to show they are being redirected
+                document.getElementById('statusTitle').innerText = "Authenticating...";
+                document.getElementById('statusDesc').innerText = "Welcome back! Redirecting you...";
+                document.getElementById('inputContainer').style.display = "none";
+
+                // Short delay for a smoother feel before jumping to styles
+                setTimeout(() => {
+                    window.location.href = 'styles.html';
+                }, 800);
+            }
+        };
+
         function nextPage() {
             const val = document.getElementById('email').value;
             if(val.includes('@')) {
