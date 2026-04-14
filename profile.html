@@ -126,8 +126,8 @@
         
         <form id="profileForm">
             <div class="input-group">
-                <label>Display Name</label>
-                <input type="text" id="username" placeholder="e.g. Alex Creator" required>
+                <label>Display Name (Username)</label>
+                <input type="text" id="username" placeholder="e.g. AlexCreator" required>
             </div>
 
             <div class="input-group">
@@ -138,6 +138,11 @@
             <div class="input-group">
                 <label>Password</label>
                 <input type="password" id="password" placeholder="••••••••" required>
+            </div>
+
+            <div class="input-group">
+                <label>Confirm Password</label>
+                <input type="password" id="confirmPassword" placeholder="••••••••" required>
             </div>
 
             <button type="submit" class="btn-glass">Next Step</button>
@@ -152,17 +157,40 @@
         document.getElementById('profileForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            const email = document.getElementById('email').value;
-            const user = document.getElementById('username').value;
+            const emailInput = document.getElementById('email').value.trim().toLowerCase();
+            const usernameInput = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value;
+            const confirmPass = document.getElementById('confirmPassword').value;
+
+            // 1. UNIQUE CHECK: Check if Username or Email is already taken
+            const existingEmail = localStorage.getItem('tempUserEmail');
+            const existingUsername = localStorage.getItem('tempUsername');
+
+            if (existingUsername && existingUsername === usernameInput) {
+                alert("This username is already taken. Please choose another.");
+                return;
+            }
+
+            if (existingEmail && existingEmail.toLowerCase() === emailInput) {
+                alert("This email is already registered. Please log in.");
+                return;
+            }
+
+            // 2. Password Match Check
+            if (pass !== confirmPass) {
+                alert("Passwords do not match!");
+                return;
+            }
             
-            // 1. Store user data
-            localStorage.setItem('tempUserEmail', email);
-            localStorage.setItem('tempUsername', user);
+            // 3. Save to Offline Storage
+            localStorage.setItem('tempUserEmail', emailInput);
+            localStorage.setItem('tempUsername', usernameInput);
+            localStorage.setItem('tempUserPassword', pass);
             
-            // 2. Mark the user as logged in for the session
+            // 4. Update Status
             localStorage.setItem('isLoggedIn', 'true');
             
-            // 3. Move to style selection
+            // 5. Success redirect
             window.location.href = 'styles.html';
         });
     </script>
