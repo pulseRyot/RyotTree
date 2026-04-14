@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | LinkTree</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
         body {
             margin: 0;
@@ -104,7 +107,6 @@
             box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
         }
 
-        /* --- Message Styling --- */
         #statusMessage {
             font-size: 13px;
             font-weight: 600;
@@ -163,66 +165,74 @@
     </div>
 
     <script>
-        // On load, check if there's an offline user saved
-        window.onload = function() {
-            const savedUser = localStorage.getItem('tempUsername');
-            if (savedUser) {
-                document.getElementById('loginTitle').innerText = "Hi, " + savedUser;
-                document.getElementById('identifier').value = savedUser;
-            }
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDjcNWpd7-zN4l--bdz_6NviRUthNnbZ5U",
+            authDomain: "linktree-a41ae.firebaseapp.com",
+            projectId: "linktree-a41ae",
+            storageBucket: "linktree-a41ae.firebasestorage.app",
+            messagingSenderId: "829854289113",
+            appId: "1:829854289113:web:e625d84c546ed06b18c2c8",
+            measurementId: "G-KN941EBYQM"
         };
 
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const enteredPass = document.getElementById('password').value;
-            const enteredUser = document.getElementById('identifier').value;
-            const statusDiv = document.getElementById('statusMessage');
+            const identifier = document.getElementById('identifier').value.trim();
+            const pass = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
             
-            // 1. Pull the data from the device's offline storage
-            const storedPass = localStorage.getItem('tempUserPassword');
-            const storedUser = localStorage.getItem('tempUsername');
-            const storedEmail = localStorage.getItem('tempUserEmail');
+            loginBtn.innerText = "Authenticating...";
+            loginBtn.disabled = true;
 
-            // 2. ERROR LOGIC:
-            // Check if account exists on this device
-            if (!storedPass) {
-                showMessage("No account found on this device. Please sign up.", "error");
-                return;
+            let email = identifier;
+
+            try {
+                // 1. Check if the identifier is a Username instead of an Email
+                if (!identifier.includes('@')) {
+                    const userQuery = await db.collection("users").where("username", "==", identifier).get();
+                    if (userQuery.empty) {
+                        throw new Error("Username not found.");
+                    }
+                    // Get the actual email linked to that username
+                    email = userQuery.docs[0].data().email;
+                }
+
+                // 2. Perform Firebase Auth Sign In
+                const userCredential = await auth.signInWithEmailAndPassword(email, pass);
+                const user = userCredential.user;
+
+                // 3. Get the correct username for display
+                const userDoc = await db.collection("users").doc(user.uid).get();
+                const username = userDoc.exists ? userDoc.data().username : "User";
+
+                // Success
+                showMessage("Success! Redirecting...", "success");
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('tempUsername', username);
+
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 800);
+
+            } catch (error) {
+                showMessage("Login failed: " + error.message, "error");
+                loginBtn.innerText = "Log In";
+                loginBtn.disabled = false;
             }
-
-            // Check if the username/email matches AND the password matches
-            const isUserValid = (enteredUser === storedUser || enteredUser === storedEmail);
-            
-            if (!isUserValid || enteredPass !== storedPass) {
-                showMessage("Invalid credentials. Please try again.", "error");
-                return; 
-            }
-
-            // 3. SUCCESS LOGIC
-            showMessage("Logging you in...", "success");
-            
-            localStorage.setItem('isLoggedIn', 'true');
-            // Ensure the latest identifier used is saved as the display name
-            localStorage.setItem('tempUsername', storedUser); 
-            
-            // Short delay for the "Success" feel
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 800);
         });
 
         function showMessage(text, type) {
             const statusDiv = document.getElementById('statusMessage');
             statusDiv.innerText = text;
-            statusDiv.className = type; // Adds 'error' or 'success' class
+            statusDiv.className = type;
             statusDiv.style.display = "block";
-
-            if (type === 'error') {
-                statusDiv.style.animation = 'none';
-                statusDiv.offsetHeight; /* trigger reflow */
-                statusDiv.style.animation = null; 
-            }
         }
     </script>
 
