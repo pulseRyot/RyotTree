@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | LinkTree</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 40px;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 380px;
+            text-align: center;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .back-link {
+            display: block;
+            text-align: left;
+            margin-bottom: 20px;
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .back-link:hover { color: white; transform: translateX(-3px); }
+
+        h2 { 
+            margin-top: 0; 
+            font-size: 2rem; 
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .input-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+            opacity: 0.8;
+        }
+
+        input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 14px;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            box-sizing: border-box;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .btn-glass {
+            background: white;
+            color: #0f0c29;
+            padding: 15px;
+            font-weight: 800;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            border: none;
+            transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 10px;
+        }
+
+        .btn-glass:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+        }
+
+        .footer-link {
+            margin-top: 25px;
+            font-size: 0.85rem;
+            opacity: 0.6;
+        }
+
+        .footer-link a {
+            color: white;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        @media (max-width: 480px) {
+            .glass-card { padding: 30px 20px; }
+            h2 { font-size: 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glass-card">
+        <a href="index.html" class="back-link">← Home</a>
+        
+        <h2 id="loginTitle">Welcome Back</h2>
+        <p style="opacity: 0.7; margin-bottom: 30px;">Log in to manage your link tree.</p>
+
+        <form id="loginForm">
+            <div class="input-group">
+                <label>Email or Username</label>
+                <input type="text" id="identifier" placeholder="Enter details" required>
+            </div>
+
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" class="btn-glass">Log In</button>
+        </form>
+
+        <div class="footer-link">
+            Don't have an account? <a href="profile.html">Sign Up</a>
+        </div>
+    </div>
+
+    <script>
+        // Check if we already have a username saved to greet them
+        window.onload = function() {
+            const savedUser = localStorage.getItem('tempUsername');
+            if (savedUser) {
+                document.getElementById('loginTitle').innerText = "Hi, " + savedUser;
+            }
+        };
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const identifier = document.getElementById('identifier').value;
+            
+            // 1. Mark the user as logged in
+            localStorage.setItem('isLoggedIn', 'true');
+            
+            // 2. Save the username so other pages can display it
+            localStorage.setItem('tempUsername', identifier);
+            
+            // 3. Redirect back to home
+            window.location.href = 'index.html';
+        });
+    </script>
+
+</body>
+</html>
