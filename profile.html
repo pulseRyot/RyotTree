@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Processing</title>
+    <title>Create Profile | LinkTree</title>
     <style>
         body {
             margin: 0;
@@ -14,7 +14,6 @@
             justify-content: center;
             align-items: center;
             color: white;
-            text-align: center;
             padding: 20px;
             box-sizing: border-box;
         }
@@ -23,62 +22,150 @@
             background: rgba(255, 255, 255, 0.07);
             backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 60px;
-            border-radius: 30px;
+            padding: 40px;
+            border-radius: 24px;
             width: 100%;
-            max-width: 500px;
+            max-width: 400px;
+            text-align: center;
             box-sizing: border-box;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
 
-        h2 { font-size: 2.2rem; margin-bottom: 10px; letter-spacing: -1px; }
-        
-        p { font-size: 1.1rem; line-height: 1.5; }
-
-        .loader {
-            border: 3px solid rgba(255, 255, 255, 0.1);
-            border-top: 3px solid white;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 30px auto;
+        h2 { 
+            margin-top: 0; 
+            font-size: 2rem; 
+            font-weight: 800;
+            letter-spacing: -1px;
         }
 
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        p {
+            opacity: 0.7;
+            font-size: 0.95rem;
+            margin-bottom: 25px;
+        }
 
-        /* --- MOBILE SWITCH (Screens smaller than 600px) --- */
-        @media (max-width: 600px) {
-            .glass-card {
-                padding: 40px 20px;
-            }
+        .input-group {
+            text-align: left;
+            margin-bottom: 15px;
+        }
 
-            h2 {
-                font-size: 1.6rem;
-            }
+        label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            font-weight: 600;
+            margin-left: 5px;
+            display: block;
+            margin-bottom: 5px;
+            opacity: 0.9;
+        }
 
-            p {
-                font-size: 0.95rem;
-            }
+        input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 14px;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            box-sizing: border-box;
+            outline: none;
+            transition: 0.3s;
+        }
 
-            .loader {
-                width: 30px;
-                height: 30px;
-                margin: 20px auto;
-            }
+        input:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .btn-glass {
+            background: #ffffff;
+            color: #0f0c29;
+            padding: 15px;
+            font-weight: 800;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            border: none;
+            margin-top: 15px;
+            transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-glass:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+            background: #f0f0f0;
+        }
+
+        .footer-link {
+            margin-top: 20px;
+            font-size: 0.85rem;
+            opacity: 0.6;
+        }
+
+        .footer-link a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        @media (max-width: 480px) {
+            .glass-card { padding: 30px 20px; }
+            h2 { font-size: 1.6rem; }
+            input { padding: 12px; }
         }
     </style>
 </head>
 <body>
+
     <div class="glass-card">
-        <h2>We're on it!</h2>
-        <p>Submission successful. Redirecting home shortly.</p>
-        <p style="opacity:0.6; font-size: 0.85rem;">Check your Gmail within 24 hours.</p>
-        <div class="loader"></div>
+        <h2>Create Profile</h2>
+        <p>Set up your account to get started.</p>
+        
+        <form id="profileForm">
+            <div class="input-group">
+                <label>Display Name</label>
+                <input type="text" id="username" placeholder="e.g. Alex Creator" required>
+            </div>
+
+            <div class="input-group">
+                <label>Email Address</label>
+                <input type="email" id="email" placeholder="your@email.com" required>
+            </div>
+
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" class="btn-glass">Next Step</button>
+        </form>
+
+        <div class="footer-link">
+            Already have an account? <a href="login.html">Log In</a>
+        </div>
     </div>
-    
+
     <script>
-        // Redirect home after 5 seconds
-        setTimeout(() => { window.location.href = 'index.html'; }, 5000);
+        document.getElementById('profileForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const user = document.getElementById('username').value;
+            
+            // 1. Store user data
+            localStorage.setItem('tempUserEmail', email);
+            localStorage.setItem('tempUsername', user);
+            
+            // 2. Mark the user as logged in for the session
+            localStorage.setItem('isLoggedIn', 'true');
+            
+            // 3. Move to style selection
+            window.location.href = 'styles.html';
+        });
     </script>
+
 </body>
 </html>
