@@ -1,216 +1,471 @@
-<!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Login | LinkTree</title>
+
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
     
+
     <style>
+
         body {
+
             margin: 0;
+
             font-family: 'Inter', sans-serif;
+
             background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+
             min-height: 100vh;
+
             display: flex;
+
             justify-content: center;
+
             align-items: center;
+
             color: white;
+
             padding: 20px;
+
         }
+
+
 
         .glass-card {
+
             background: rgba(255, 255, 255, 0.07);
+
             backdrop-filter: blur(15px);
+
             border: 1px solid rgba(255, 255, 255, 0.15);
+
             padding: 40px;
+
             border-radius: 24px;
+
             width: 100%;
+
             max-width: 380px;
+
             text-align: center;
+
             box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+
         }
 
+
+
         .back-link {
+
             display: block;
+
             text-align: left;
+
             margin-bottom: 20px;
+
             color: rgba(255, 255, 255, 0.6);
+
             text-decoration: none;
+
             font-size: 13px;
+
             transition: 0.3s;
+
         }
+
+
 
         .back-link:hover { color: white; }
 
+
+
         h2 { margin-top: 0; font-size: 2rem; font-weight: 800; }
+
         
+
         .input-group { text-align: left; margin-bottom: 20px; }
+
         label { font-size: 11px; text-transform: uppercase; font-weight: 600; margin-bottom: 8px; display: block; opacity: 0.8; }
 
+
+
         input {
+
             width: 100%;
+
             background: rgba(255, 255, 255, 0.05);
+
             border: 1px solid rgba(255, 255, 255, 0.2);
+
             padding: 14px;
+
             border-radius: 12px;
+
             color: white;
+
             font-size: 16px;
+
             outline: none;
+
             transition: 0.3s;
+
             box-sizing: border-box;
+
         }
+
+
 
         input:focus { background: rgba(255, 255, 255, 0.1); border-color: white; }
 
+
+
         .forgot-pass {
+
             display: block;
+
             text-align: right;
+
             font-size: 12px;
+
             margin-top: 8px;
+
             color: #4eff91;
+
             text-decoration: none;
+
             cursor: pointer;
+
             font-weight: 600;
+
         }
+
+
 
         .btn-glass {
+
             background: white;
+
             color: #0f0c29;
+
             padding: 15px;
+
             font-weight: 800;
+
             border-radius: 12px;
+
             cursor: pointer;
+
             width: 100%;
+
             border: none;
+
             text-transform: uppercase;
+
             margin-top: 10px;
+
         }
+
+
 
         #statusMessage { 
+
             font-size: 13px; 
+
             margin-top: 15px; 
+
             display: none; 
+
             padding: 12px; 
+
             border-radius: 10px; 
+
             line-height: 1.4;
+
         }
+
         .error { background: rgba(255, 77, 77, 0.15); color: #ff4d4d; border: 1px solid rgba(255, 77, 77, 0.3); }
+
         .success { background: rgba(78, 255, 145, 0.15); color: #4eff91; border: 1px solid rgba(78, 255, 145, 0.3); }
 
+
+
         .footer-link { margin-top: 25px; font-size: 0.85rem; opacity: 0.6; }
+
         .footer-link a { color: white; font-weight: 700; text-decoration: none; }
+
     </style>
+
 </head>
+
 <body>
 
+
+
     <div class="glass-card">
+
         <a href="index.html" class="back-link">← Home</a>
+
         <h2>Welcome Back</h2>
+
         <p style="opacity: 0.7;">Sign in to manage your LinkTree.</p>
 
+
+
         <form id="loginForm">
+
             <div class="input-group">
+
                 <label>Gmail Address</label>
+
                 <input type="email" id="email" placeholder="example@gmail.com" required>
+
             </div>
+
             <div class="input-group">
+
                 <label>Password</label>
+
                 <input type="password" id="password" placeholder="••••••••" required>
+
                 <span class="forgot-pass" id="resetLink" onclick="sendResetEmail()">Reset Password?</span>
+
             </div>
+
             <button type="submit" id="loginBtn" class="btn-glass">Log In</button>
+
             <div id="statusMessage"></div>
+
         </form>
 
+
+
         <div class="footer-link">
+
             New here? <a href="profile.html">Create Account</a>
+
         </div>
+
     </div>
 
+
+
     <script>
+
         const firebaseConfig = {
+
             apiKey: "AIzaSyDjcNWpd7-zN4l--bdz_6NviRUthNnbZ5U",
+
             authDomain: "linktree-a41ae.firebaseapp.com",
+
             databaseURL: "https://linktree-a41ae-default-rtdb.firebaseio.com/",
+
             projectId: "linktree-a41ae",
+
             storageBucket: "linktree-a41ae.firebasestorage.app",
+
             messagingSenderId: "829854289113",
+
             appId: "1:829854289113:web:e625d84c546ed06b18c2c8"
+
         };
 
+
+
         firebase.initializeApp(firebaseConfig);
+
         const auth = firebase.auth();
+
         const database = firebase.database();
 
+
+
         // --- Standard Login ---
+
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
+
             e.preventDefault();
+
             const email = document.getElementById('email').value.trim().toLowerCase();
+
             const pass = document.getElementById('password').value;
+
             const btn = document.getElementById('loginBtn');
 
+
+
             btn.innerText = "Checking...";
+
             btn.disabled = true;
 
+
+
             try {
+
                 const userCredential = await auth.signInWithEmailAndPassword(email, pass);
+
                 const user = userCredential.user;
 
+
+
                 const userSnap = await database.ref('users/' + user.uid).once('value');
+
                 const username = userSnap.exists() ? userSnap.val().username : email.split('@')[0];
 
+
+
                 localStorage.setItem('isLoggedIn', 'true');
+
                 localStorage.setItem('tempUsername', username);
+
                 
+
                 showMessage("Login Successful!", "success");
+
                 setTimeout(() => window.location.href = 'index.html', 1000);
 
+
+
             } catch (err) {
+
                 showMessage("Login failed. Please check your credentials.", "error");
+
                 btn.innerText = "Log In";
+
                 btn.disabled = false;
+
             }
+
         });
 
-        // --- UPDATED PASSWORD RESET (No Database Check) ---
+
+
+        // --- PASSWORD RESET LOGIC ---
+
         async function sendResetEmail() {
+
             const emailInput = document.getElementById('email').value.trim().toLowerCase();
+
             const resetBtn = document.getElementById('resetLink');
+
             
+
             if (!emailInput) {
+
                 showMessage("Please enter your Gmail address first.", "error");
+
                 return;
+
             }
+
+
 
             // UI Feedback
-            resetBtn.innerText = "Sending...";
+
+            resetBtn.innerText = "Checking...";
+
             resetBtn.style.pointerEvents = "none";
-            showMessage("Sending reset link...", "success");
+
+            showMessage("Verifying database...", "success");
+
+
 
             try {
-                // Attempt to send reset email directly
-                await auth.sendPasswordResetEmail(emailInput);
-                showMessage("Reset link sent! Check your Gmail inbox.", "success");
+
+                // 1. Fetch the entire 'users' node
+
+                const snapshot = await database.ref('users').once('value');
+
+                let emailFound = false;
+
+
+
+                if (snapshot.exists()) {
+
+                    const allUsers = snapshot.val();
+
+                    
+
+                    // 2. Loop through all database entries
+
+                    for (let userId in allUsers) {
+
+                        if (allUsers[userId].email && allUsers[userId].email.toLowerCase() === emailInput) {
+
+                            emailFound = true;
+
+                            break;
+
+                        }
+
+                    }
+
+                }
+
+
+
+                // 3. Conditional Check
+
+                if (emailFound) {
+
+                    // Match found: Send the link
+
+                    await auth.sendPasswordResetEmail(emailInput);
+
+                    showMessage("Reset link sent! Check your Gmail inbox.", "success");
+
+                } else {
+
+                    // No match found: Show error
+
+                    showMessage("Error: This Gmail is not registered in our database.", "error");
+
+                }
+
+
 
             } catch (err) {
+
                 console.error(err);
-                // If the email is not in Firebase Auth, it will throw an error here
-                showMessage("Failed to send: " + err.message, "error");
+
+                showMessage("Process failed: " + err.message, "error");
+
             } finally {
+
                 resetBtn.innerText = "Reset Password?";
+
                 resetBtn.style.pointerEvents = "auto";
+
             }
+
         }
 
+
+
         function showMessage(text, type) {
+
             const statusDiv = document.getElementById('statusMessage');
+
             statusDiv.innerText = text;
+
             statusDiv.className = type;
+
             statusDiv.style.display = "block";
+
         }
+
     </script>
+
 </body>
+
 </html>
