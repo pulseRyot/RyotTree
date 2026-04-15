@@ -175,7 +175,7 @@
             }
         });
 
-        // --- PASSWORD RESET LOGIC ---
+        // --- UPDATED PASSWORD RESET (No Database Check) ---
         async function sendResetEmail() {
             const emailInput = document.getElementById('email').value.trim().toLowerCase();
             const resetBtn = document.getElementById('resetLink');
@@ -186,40 +186,19 @@
             }
 
             // UI Feedback
-            resetBtn.innerText = "Checking...";
+            resetBtn.innerText = "Sending...";
             resetBtn.style.pointerEvents = "none";
-            showMessage("Verifying database...", "success");
+            showMessage("Sending reset link...", "success");
 
             try {
-                // 1. Fetch the entire 'users' node
-                const snapshot = await database.ref('users').once('value');
-                let emailFound = false;
-
-                if (snapshot.exists()) {
-                    const allUsers = snapshot.val();
-                    
-                    // 2. Loop through all database entries
-                    for (let userId in allUsers) {
-                        if (allUsers[userId].email && allUsers[userId].email.toLowerCase() === emailInput) {
-                            emailFound = true;
-                            break;
-                        }
-                    }
-                }
-
-                // 3. Conditional Check
-                if (emailFound) {
-                    // Match found: Send the link
-                    await auth.sendPasswordResetEmail(emailInput);
-                    showMessage("Reset link sent! Check your Gmail inbox.", "success");
-                } else {
-                    // No match found: Show error
-                    showMessage("Error: This Gmail is not registered in our database.", "error");
-                }
+                // Attempt to send reset email directly
+                await auth.sendPasswordResetEmail(emailInput);
+                showMessage("Reset link sent! Check your Gmail inbox.", "success");
 
             } catch (err) {
                 console.error(err);
-                showMessage("Process failed: " + err.message, "error");
+                // If the email is not in Firebase Auth, it will throw an error here
+                showMessage("Failed to send: " + err.message, "error");
             } finally {
                 resetBtn.innerText = "Reset Password?";
                 resetBtn.style.pointerEvents = "auto";
