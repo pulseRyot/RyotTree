@@ -28,22 +28,35 @@
             border-radius: 24px;
             width: 100%;
             max-width: 380px;
-            text-align: center;
+            text-align: center; /* Centers all text, buttons, and inline elements */
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
             box-sizing: border-box;
         }
 
         .back-link {
-            display: block;
-            text-align: left;
+            display: inline-block; /* Changed from block to inline-block for centering */
             margin-bottom: 20px;
             color: rgba(255, 255, 255, 0.6);
             text-decoration: none;
             font-size: 13px;
             font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .back-link:hover {
+            color: white;
         }
 
         h2 { margin-top: 0; font-size: 1.8rem; letter-spacing: -0.5px; }
         p { opacity: 0.8; font-size: 1rem; margin-bottom: 20px; }
+
+        /* Ensure form views are centered */
+        #loggedOutView, #loggedInView {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
 
         .btn-glass {
             background: rgba(255, 255, 255, 0.1);
@@ -58,6 +71,7 @@
             transition: 0.3s;
             text-transform: uppercase;
             margin-top: 10px;
+            box-sizing: border-box;
         }
 
         .btn-glass:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-2px); }
@@ -74,6 +88,12 @@
             color: white;
             margin-bottom: 10px;
             outline: none;
+            text-align: center; /* Centers the placeholder and typed text */
+            box-sizing: border-box;
+        }
+        
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
         }
     </style>
 </head>
@@ -95,11 +115,12 @@
         <div id="loggedInView" style="display: none;">
             <p id="userEmailDisplay" style="font-weight: 600; color: #4eff91;"></p>
             <button class="btn-glass btn-primary" onclick="proceed()">Continue to Styles</button>
-            <button class="btn-glass" style="font-size: 12px; opacity: 0.6; background: none;" onclick="firebase.auth().signOut().then(() => location.reload())">Switch Account</button>
+            <button class="btn-glass" style="font-size: 12px; opacity: 0.6; background: none; border: none; box-shadow: none;" onclick="firebase.auth().signOut().then(() => location.reload())">Switch Account</button>
         </div>
     </div>
 
     <script>
+        // Your Firebase config
         const firebaseConfig = {
             apiKey: "AIzaSyDjcNWpd7-zN4l--bdz_6NviRUthNnbZ5U",
             authDomain: "linktree-a41ae.firebaseapp.com",
@@ -119,9 +140,8 @@
             const statusDesc = document.getElementById('statusDesc');
 
             if (user) {
-                // User is signed in, but we DON'T redirect. We show a "Continue" button.
                 loggedOutView.style.display = "none";
-                loggedInView.style.display = "block";
+                loggedInView.style.display = "flex"; // Changed to flex for centering
                 
                 statusTitle.innerText = "Welcome Back";
                 statusDesc.innerText = "You are currently signed in as:";
@@ -130,8 +150,7 @@
                 localStorage.setItem('tempUserEmail', user.email);
                 localStorage.setItem('isLoggedIn', 'true');
             } else {
-                // User is not signed in
-                loggedOutView.style.display = "block";
+                loggedOutView.style.display = "flex"; // Changed to flex for centering
                 loggedInView.style.display = "none";
             }
         });
