@@ -59,6 +59,21 @@
 
         .home-btn { color: var(--accent) !important; font-weight: bold; margin-bottom: 5px; }
 
+        /* --- Mobile Bottom Nav (Hidden by Default) --- */
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(15, 12, 41, 0.9);
+            backdrop-filter: blur(15px);
+            border-top: 1px solid var(--border);
+            padding: 15px;
+            text-align: center;
+            z-index: 1000;
+        }
+
         /* --- Main Content Area --- */
         .main-content {
             flex: 1;
@@ -153,15 +168,24 @@
         }
 
         .btn-action.danger:hover { background: var(--danger); color: white; }
-
         .status-msg { font-size: 0.85rem; margin-top: 15px; text-align: center; min-height: 1.2rem; color: var(--accent); }
 
-        .plan-box {
-            background: rgba(255,255,255,0.05);
-            padding: 20px;
-            border-radius: 15px;
-            border: 1px dashed var(--border);
-            margin-top: 10px;
+        /* --- MOBILE ADAPTATION --- */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { 
+                width: 100%; 
+                flex-direction: row; 
+                overflow-x: auto; 
+                padding: 10px; 
+                border-right: none; 
+                border-bottom: 1px solid var(--border);
+                box-sizing: border-box;
+            }
+            .sidebar h2, .sidebar hr, .sidebar .home-btn { display: none; } /* Hide Home and Headers in sidebar on mobile */
+            .sidebar .nav-item { margin-bottom: 0; white-space: nowrap; font-size: 0.8rem; }
+            .mobile-nav { display: block; } /* Show Bottom Home Button */
+            .main-content { padding: 20px; padding-bottom: 80px; } /* Space for bottom nav */
         }
     </style>
 </head>
@@ -182,10 +206,15 @@
     <div class="nav-item" onclick="logoutUser()" style="margin-top: auto; color: var(--danger);"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</div>
 </div>
 
+<div class="mobile-nav">
+    <div class="nav-item home-btn" onclick="window.location.href='index.html'" style="justify-content: center; margin: 0 auto;">
+        <i class="fa-solid fa-house"></i> Back to Home
+    </div>
+</div>
+
 <div class="main-content">
     <div id="profile" class="settings-card active">
         <h3>Profile Settings</h3>
-        
         <label for="pfpInput">
             <div id="userInitialCircle" class="profile-avatar">?</div>
             <input type="file" id="pfpInput" accept="image/*" style="display: none;" onchange="uploadPFP(this)">
@@ -232,6 +261,7 @@
 </div>
 
 <script>
+    // Config stays the same
     const firebaseConfig = {
         apiKey: "AIzaSyDjcNWpd7-zN4l--bdz_6NviRUthNnbZ5U",
         authDomain: "linktree-a41ae.firebaseapp.com",
@@ -259,18 +289,14 @@
                 if (doc.exists) {
                     const data = doc.data();
                     const circle = document.getElementById('userInitialCircle');
-                    
                     if (data.username) {
                         document.getElementById('usernameInput').value = data.username;
                         if (!data.profilePic) circle.innerText = data.username.charAt(0).toUpperCase();
                     }
-                    
-                    // Displaying the photo from the text string in the database
                     if (data.profilePic) {
                         circle.innerHTML = `<img src="${data.profilePic}">`;
                         circle.style.background = "none";
                     }
-
                     if (data.isPro) {
                         document.getElementById('planName').innerText = "Pro Member";
                         document.getElementById('proBadge').style.display = "block";
@@ -283,33 +309,22 @@
         }
     });
 
-    // PHOTO UPLOAD WITHOUT STORAGE (Using Base64)
     function uploadPFP(input) {
         const file = input.files[0];
         if (!file) return;
-
-        // Firestore documents have a 1MB limit. Photos should be small.
         if (file.size > 800000) {
             alert("Photo too large! Please keep it under 800KB.");
             return;
         }
-
         const status = document.getElementById('saveStatus');
-        status.innerText = "Saving to Database...";
-
+        status.innerText = "Saving...";
         const reader = new FileReader();
         reader.onloadend = async function() {
             const base64String = reader.result;
             try {
-                // Save the long text string directly to Firestore
-                await db.collection('users').doc(auth.currentUser.uid).set({ 
-                    profilePic: base64String 
-                }, { merge: true });
+                await db.collection('users').doc(auth.currentUser.uid).set({ profilePic: base64String }, { merge: true });
                 status.innerText = "Photo Saved!";
-            } catch (e) {
-                status.innerText = "Error saving photo.";
-                console.error(e);
-            }
+            } catch (e) { status.innerText = "Error saving."; }
         };
         reader.readAsDataURL(file);
     }
@@ -333,36 +348,27 @@
         if (newEmail) {
             try {
                 await auth.currentUser.updateEmail(newEmail);
-                alert("Email updated! Please log in again.");
+                alert("Email updated! Log in again.");
                 auth.signOut();
             } catch (e) { alert(e.message); }
         }
     }
 
     async function deleteAccount() {
-        if (confirm("Permanently delete account?")) {
+        if (confirm("Delete account?")) {
             const user = auth.currentUser;
             await db.collection('users').doc(user.uid).delete();
-            await user.delete().catch(() => alert("Please re-authenticate to delete."));
+            await user.delete().catch(() => alert("Please re-authenticate."));
             window.location.href = 'index.html';
         }
     }
 
     paypal.Buttons({
-        createOrder: (data, actions) => {
-            return actions.order.create({
-                purchase_units: [{ amount: { value: '5.00' } }]
-            });
-        },
-        onApprove: (data, actions) => {
-            return actions.order.capture().then(async (details) => {
-                await db.collection('users').doc(auth.currentUser.uid).set({ 
-                    isPro: true, 
-                    plan: 'Pro'
-                }, { merge: true });
-                alert("Welcome to Pro!");
-            });
-        }
+        createOrder: (data, actions) => actions.order.create({ purchase_units: [{ amount: { value: '5.00' } }] }),
+        onApprove: (data, actions) => actions.order.capture().then(async () => {
+            await db.collection('users').doc(auth.currentUser.uid).set({ isPro: true, plan: 'Pro' }, { merge: true });
+            alert("Welcome to Pro!");
+        })
     }).render('#paypal-button-container');
 </script>
 </body>
