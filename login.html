@@ -31,7 +31,6 @@
             max-width: 380px;
             text-align: center;
             box-sizing: border-box;
-            position: relative;
         }
 
         .back-link {
@@ -47,6 +46,7 @@
 
         .back-link:hover { color: white; transform: translateX(-3px); }
         h2 { margin-top: 0; font-size: 2rem; font-weight: 800; letter-spacing: -1px; }
+        
         .input-group { text-align: left; margin-bottom: 20px; }
         label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 600; margin-bottom: 8px; display: block; opacity: 0.8; }
 
@@ -81,10 +81,17 @@
         }
 
         .btn-glass:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2); }
-        #statusMessage { font-size: 13px; font-weight: 600; margin-top: 15px; display: none; }
+        
+        #statusMessage { font-size: 13px; font-weight: 600; margin-top: 15px; display: none; line-height: 1.4; }
         .error { color: #ff4d4d; animation: shake 0.4s ease; }
         .success { color: #4eff91; }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        
+        @keyframes shake { 
+            0%, 100% { transform: translateX(0); } 
+            25% { transform: translateX(-5px); } 
+            75% { transform: translateX(5px); } 
+        }
+
         .footer-link { margin-top: 25px; font-size: 0.85rem; opacity: 0.6; }
         .footer-link a { color: white; text-decoration: none; font-weight: 700; }
     </style>
@@ -93,13 +100,13 @@
 
     <div class="glass-card">
         <a href="index.html" class="back-link">← Home</a>
-        <h2 id="loginTitle">Welcome Back</h2>
-        <p style="opacity: 0.7; margin-bottom: 30px;">Log in to manage your link tree.</p>
+        <h2>Welcome Back</h2>
+        <p style="opacity: 0.7; margin-bottom: 30px;">Sign in with your Gmail account.</p>
 
         <form id="loginForm">
             <div class="input-group">
-                <label>Email or Username</label>
-                <input type="text" id="identifier" placeholder="Enter details" required>
+                <label>Gmail Address</label>
+                <input type="email" id="email" placeholder="example@gmail.com" required>
             </div>
             <div class="input-group">
                 <label>Password</label>
@@ -115,6 +122,7 @@
     </div>
 
     <script>
+        // Your Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDjcNWpd7-zN4l--bdz_6NviRUthNnbZ5U",
             authDomain: "linktree-a41ae.firebaseapp.com",
@@ -132,34 +140,28 @@
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const identifier = document.getElementById('identifier').value.trim();
+            const email = document.getElementById('email').value.trim().toLowerCase();
             const pass = document.getElementById('password').value;
             const loginBtn = document.getElementById('loginBtn');
             
+            // 1. Basic Gmail validation
+            if (!email.endsWith('@gmail.com')) {
+                showMessage("Please use a valid @gmail.com address.", "error");
+                return;
+            }
+
             loginBtn.innerText = "Authenticating...";
             loginBtn.disabled = true;
 
-            let email = identifier;
-
             try {
-                // 1. If it's a Username, find the associated Email
-                if (!identifier.includes('@')) {
-                    const snapshot = await database.ref('users').orderByChild('username').equalTo(identifier).once('value');
-                    if (!snapshot.exists()) {
-                        throw new Error("Username not found.");
-                    }
-                    // Get email from the first matching user
-                    const userData = Object.values(snapshot.val())[0];
-                    email = userData.email;
-                }
-
-                // 2. Perform Firebase Auth Sign In
+                // 2. Perform Firebase Auth Sign In directly with Email
                 const userCredential = await auth.signInWithEmailAndPassword(email, pass);
                 const user = userCredential.user;
 
-                // 3. Get the correct username for display
+                // 3. Fetch username from Database for the UI header
                 const userSnap = await database.ref('users/' + user.uid).once('value');
-                const username = userSnap.exists() ? userSnap.val().username : "User";
+                // If no username exists in DB, fallback to the email prefix (name before @)
+                const username = userSnap.exists() ? userSnap.val().username : email.split('@')[0];
 
                 // Success
                 showMessage("Success! Redirecting...", "success");
@@ -171,7 +173,12 @@
                 }, 800);
 
             } catch (error) {
-                showMessage("Login failed: " + error.message, "error");
+                // Friendly error messages
+                let friendlyMsg = error.message;
+                if (error.code === 'auth/user-not-found') friendlyMsg = "No account found with this Gmail.";
+                if (error.code === 'auth/wrong-password') friendlyMsg = "Incorrect password.";
+                
+                showMessage(friendlyMsg, "error");
                 loginBtn.innerText = "Log In";
                 loginBtn.disabled = false;
             }
