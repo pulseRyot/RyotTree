@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Step 1: Auth</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <style>
+        /* ... existing styles remain the same ... */
         body {
             margin: 0;
             font-family: 'Inter', sans-serif;
@@ -42,22 +45,9 @@
             transition: 0.3s;
         }
 
-        .back-link:hover {
-            color: white;
-            transform: translateX(-3px);
-        }
-
-        h2 { 
-            margin-top: 0; 
-            font-size: 1.8rem; 
-            letter-spacing: -0.5px;
-        }
-
-        p {
-            opacity: 0.8;
-            font-size: 1rem;
-            margin-bottom: 10px;
-        }
+        .back-link:hover { color: white; transform: translateX(-3px); }
+        h2 { margin-top: 0; font-size: 1.8rem; letter-spacing: -0.5px; }
+        p { opacity: 0.8; font-size: 1rem; margin-bottom: 10px; }
 
         input {
             width: 100%;
@@ -71,11 +61,6 @@
             box-sizing: border-box;
             outline: none;
             transition: 0.3s;
-        }
-
-        input:focus { 
-            border-color: rgba(255, 255, 255, 0.5); 
-            background: rgba(255, 255, 255, 0.08);
         }
 
         .btn-glass {
@@ -93,18 +78,7 @@
             letter-spacing: 1px;
         }
 
-        .btn-glass:hover { 
-            background: rgba(255, 255, 255, 0.2); 
-            transform: translateY(-2px);
-        }
-
-        @media (max-width: 600px) {
-            .glass-card { padding: 30px 20px; }
-            h2 { font-size: 1.5rem; }
-            p { font-size: 0.9rem; }
-            input { font-size: 14px; padding: 12px; }
-            .btn-glass { padding: 12px 20px; font-size: 14px; }
-        }
+        .btn-glass:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-2px); }
     </style>
 </head>
 <body>
@@ -122,27 +96,43 @@
     </div>
 
     <script>
-        window.onload = function() {
-            const isLoggedIn = localStorage.getItem('isLoggedIn');
-            const savedEmail = localStorage.getItem('tempUserEmail');
-
-            // If the user is already logged in and we have their email...
-            if (isLoggedIn === 'true' && savedEmail) {
-                // Update the UI to show they are being redirected
-                document.getElementById('statusTitle').innerText = "Authenticating...";
-                document.getElementById('statusDesc').innerText = "Welcome back! Redirecting you...";
-                document.getElementById('inputContainer').style.display = "none";
-
-                // Short delay for a smoother feel before jumping to styles
-                setTimeout(() => {
-                    window.location.href = 'styles.html';
-                }, 800);
-            }
+        // --- Firebase Config (MUST MATCH YOUR LOGIN PAGE) ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyDjcNWpd7-zN4l--bdz_6NviRUthNnbZ5U",
+            authDomain: "linktree-a41ae.firebaseapp.com",
+            projectId: "linktree-a41ae",
+            storageBucket: "linktree-a41ae.firebasestorage.app",
+            messagingSenderId: "829854289113",
+            appId: "1:829854289113:web:e625d84c546ed06b18c2c8"
         };
 
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // Check if user is already logged in via Firebase
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                // USER HAS AN ACCOUNT & IS LOGGED IN
+                const userEmail = user.email;
+                
+                // Update UI
+                document.getElementById('statusTitle').innerText = "Account Found";
+                document.getElementById('statusDesc').innerText = `Logged in as: ${userEmail}`;
+                document.getElementById('inputContainer').style.display = "none";
+
+                // Save to local storage for the next step and redirect
+                localStorage.setItem('tempUserEmail', userEmail);
+                localStorage.setItem('isLoggedIn', 'true');
+
+                setTimeout(() => {
+                    window.location.href = 'styles.html';
+                }, 1200);
+            }
+        });
+
         function nextPage() {
-            const val = document.getElementById('email').value;
-            if(val.includes('@')) {
+            const val = document.getElementById('email').value.trim();
+            if(val.includes('@gmail.com')) {
                 localStorage.setItem('tempUserEmail', val);
                 window.location.href = 'styles.html';
             } else { 
