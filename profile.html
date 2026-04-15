@@ -33,6 +33,24 @@
             text-align: center;
             box-sizing: border-box;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            position: relative; /* Added for home link positioning */
+        }
+
+        /* --- Home Button Styles --- */
+        .home-link {
+            display: block;
+            text-align: left;
+            margin-bottom: 20px;
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .home-link:hover {
+            color: white;
+            transform: translateX(-3px);
         }
 
         h2 { margin-top: 0; font-size: 2rem; font-weight: 800; letter-spacing: -1px; }
@@ -79,6 +97,8 @@
 <body>
 
     <div class="glass-card">
+        <a href="index.html" class="home-link">← Back to Home</a>
+
         <h2>Create Profile</h2>
         <p>Set up your account to get started.</p>
         
@@ -112,7 +132,6 @@
     </div>
 
     <script>
-        // Updated Firebase Config for Realtime Database
         const firebaseConfig = {
             apiKey: "AIzaSyDjcNWpd7-zN4l--bdz_6NviRUthNnbZ5U",
             authDomain: "linktree-a41ae.firebaseapp.com",
@@ -123,7 +142,6 @@
             appId: "1:829854289113:web:e625d84c546ed06b18c2c8"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const database = firebase.database();
@@ -146,7 +164,6 @@
             submitBtn.disabled = true;
 
             try {
-                // 1. UNIQUE USERNAME CHECK (Realtime Database Check)
                 const snapshot = await database.ref('users').orderByChild('username').equalTo(username).once('value');
                 if (snapshot.exists()) {
                     alert("This username is already taken. Please choose another.");
@@ -155,22 +172,18 @@
                     return;
                 }
 
-                // 2. CREATE ACCOUNT IN FIREBASE AUTH
                 const userCredential = await auth.createUserWithEmailAndPassword(email, pass);
                 const user = userCredential.user;
 
-                // 3. SAVE PROFILE TO REALTIME DATABASE
                 await database.ref('users/' + user.uid).set({
                     username: username,
                     email: email,
                     createdAt: firebase.database.ServerValue.TIMESTAMP
                 });
 
-                // 4. Update Local Session & Redirect
                 localStorage.setItem('tempUsername', username);
                 localStorage.setItem('isLoggedIn', 'true');
                 
-                // Final Redirect
                 window.location.href = 'styles.html';
 
             } catch (error) {
