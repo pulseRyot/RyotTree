@@ -6,7 +6,7 @@
     <title>Login | LinkTree</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <style>
         body {
             margin: 0;
@@ -46,28 +46,9 @@
         }
 
         .back-link:hover { color: white; transform: translateX(-3px); }
-
-        h2 { 
-            margin-top: 0; 
-            font-size: 2rem; 
-            font-weight: 800;
-            letter-spacing: -1px;
-        }
-
-        .input-group {
-            text-align: left;
-            margin-bottom: 20px;
-        }
-
-        label {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            display: block;
-            opacity: 0.8;
-        }
+        h2 { margin-top: 0; font-size: 2rem; font-weight: 800; letter-spacing: -1px; }
+        .input-group { text-align: left; margin-bottom: 20px; }
+        label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 600; margin-bottom: 8px; display: block; opacity: 0.8; }
 
         input {
             width: 100%;
@@ -82,10 +63,7 @@
             transition: 0.3s;
         }
 
-        input:focus {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.5);
-        }
+        input:focus { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.5); }
 
         .btn-glass {
             background: white;
@@ -102,45 +80,19 @@
             margin-top: 10px;
         }
 
-        .btn-glass:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
-        }
-
-        #statusMessage {
-            font-size: 13px;
-            font-weight: 600;
-            margin-top: 15px;
-            display: none; 
-        }
-
+        .btn-glass:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2); }
+        #statusMessage { font-size: 13px; font-weight: 600; margin-top: 15px; display: none; }
         .error { color: #ff4d4d; animation: shake 0.4s ease; }
         .success { color: #4eff91; }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-
-        .footer-link {
-            margin-top: 25px;
-            font-size: 0.85rem;
-            opacity: 0.6;
-        }
-
-        .footer-link a {
-            color: white;
-            text-decoration: none;
-            font-weight: 700;
-        }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        .footer-link { margin-top: 25px; font-size: 0.85rem; opacity: 0.6; }
+        .footer-link a { color: white; text-decoration: none; font-weight: 700; }
     </style>
 </head>
 <body>
 
     <div class="glass-card">
         <a href="index.html" class="back-link">← Home</a>
-        
         <h2 id="loginTitle">Welcome Back</h2>
         <p style="opacity: 0.7; margin-bottom: 30px;">Log in to manage your link tree.</p>
 
@@ -149,12 +101,10 @@
                 <label>Email or Username</label>
                 <input type="text" id="identifier" placeholder="Enter details" required>
             </div>
-
             <div class="input-group">
                 <label>Password</label>
                 <input type="password" id="password" placeholder="••••••••" required>
             </div>
-
             <button type="submit" id="loginBtn" class="btn-glass">Log In</button>
             <div id="statusMessage"></div>
         </form>
@@ -165,21 +115,19 @@
     </div>
 
     <script>
-        // Your Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDjcNWpd7-zN4l--bdz_6NviRUthNnbZ5U",
             authDomain: "linktree-a41ae.firebaseapp.com",
+            databaseURL: "https://linktree-a41ae-default-rtdb.firebaseio.com/",
             projectId: "linktree-a41ae",
             storageBucket: "linktree-a41ae.firebasestorage.app",
             messagingSenderId: "829854289113",
-            appId: "1:829854289113:web:e625d84c546ed06b18c2c8",
-            measurementId: "G-KN941EBYQM"
+            appId: "1:829854289113:web:e625d84c546ed06b18c2c8"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
-        const db = firebase.firestore();
+        const database = firebase.database();
 
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -194,14 +142,15 @@
             let email = identifier;
 
             try {
-                // 1. Check if the identifier is a Username instead of an Email
+                // 1. If it's a Username, find the associated Email
                 if (!identifier.includes('@')) {
-                    const userQuery = await db.collection("users").where("username", "==", identifier).get();
-                    if (userQuery.empty) {
+                    const snapshot = await database.ref('users').orderByChild('username').equalTo(identifier).once('value');
+                    if (!snapshot.exists()) {
                         throw new Error("Username not found.");
                     }
-                    // Get the actual email linked to that username
-                    email = userQuery.docs[0].data().email;
+                    // Get email from the first matching user
+                    const userData = Object.values(snapshot.val())[0];
+                    email = userData.email;
                 }
 
                 // 2. Perform Firebase Auth Sign In
@@ -209,8 +158,8 @@
                 const user = userCredential.user;
 
                 // 3. Get the correct username for display
-                const userDoc = await db.collection("users").doc(user.uid).get();
-                const username = userDoc.exists ? userDoc.data().username : "User";
+                const userSnap = await database.ref('users/' + user.uid).once('value');
+                const username = userSnap.exists() ? userSnap.val().username : "User";
 
                 // Success
                 showMessage("Success! Redirecting...", "success");
@@ -235,6 +184,5 @@
             statusDiv.style.display = "block";
         }
     </script>
-
 </body>
 </html>
