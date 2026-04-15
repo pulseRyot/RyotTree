@@ -6,7 +6,8 @@
     <title>Create Profile | LinkTree</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    
     <style>
         body {
             margin: 0;
@@ -34,34 +35,10 @@
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
 
-        h2 { 
-            margin-top: 0; 
-            font-size: 2rem; 
-            font-weight: 800;
-            letter-spacing: -1px;
-        }
-
-        p {
-            opacity: 0.7;
-            font-size: 0.95rem;
-            margin-bottom: 25px;
-        }
-
-        .input-group {
-            text-align: left;
-            margin-bottom: 15px;
-        }
-
-        label {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-            font-weight: 600;
-            margin-left: 5px;
-            display: block;
-            margin-bottom: 5px;
-            opacity: 0.9;
-        }
+        h2 { margin-top: 0; font-size: 2rem; font-weight: 800; letter-spacing: -1px; }
+        p { opacity: 0.7; font-size: 0.95rem; margin-bottom: 25px; }
+        .input-group { text-align: left; margin-bottom: 15px; }
+        label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 600; margin-left: 5px; display: block; margin-bottom: 5px; opacity: 0.9; }
 
         input {
             width: 100%;
@@ -76,10 +53,7 @@
             transition: 0.3s;
         }
 
-        input:focus {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.5);
-        }
+        input:focus { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.5); }
 
         .btn-glass {
             background: #ffffff;
@@ -96,29 +70,10 @@
             letter-spacing: 1px;
         }
 
-        .btn-glass:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
-            background: #f0f0f0;
-        }
-
-        .footer-link {
-            margin-top: 20px;
-            font-size: 0.85rem;
-            opacity: 0.6;
-        }
-
-        .footer-link a {
-            color: white;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        @media (max-width: 480px) {
-            .glass-card { padding: 30px 20px; }
-            h2 { font-size: 1.6rem; }
-            input { padding: 12px; }
-        }
+        .btn-glass:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2); background: #f0f0f0; }
+        .footer-link { margin-top: 20px; font-size: 0.85rem; opacity: 0.6; }
+        .footer-link a { color: white; text-decoration: none; font-weight: 600; }
+        @media (max-width: 480px) { .glass-card { padding: 30px 20px; } h2 { font-size: 1.6rem; } }
     </style>
 </head>
 <body>
@@ -157,21 +112,21 @@
     </div>
 
     <script>
-        // Firebase Config
+        // Updated Firebase Config for Realtime Database
         const firebaseConfig = {
             apiKey: "AIzaSyDjcNWpd7-zN4l--bdz_6NviRUthNnbZ5U",
             authDomain: "linktree-a41ae.firebaseapp.com",
+            databaseURL: "https://linktree-a41ae-default-rtdb.firebaseio.com/",
             projectId: "linktree-a41ae",
             storageBucket: "linktree-a41ae.firebasestorage.app",
             messagingSenderId: "829854289113",
-            appId: "1:829854289113:web:e625d84c546ed06b18c2c8",
-            measurementId: "G-KN941EBYQM"
+            appId: "1:829854289113:web:e625d84c546ed06b18c2c8"
         };
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
-        const db = firebase.firestore();
+        const database = firebase.database();
 
         document.getElementById('profileForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -182,41 +137,40 @@
             const pass = document.getElementById('password').value;
             const confirmPass = document.getElementById('confirmPassword').value;
 
-            // 1. Client-side Validation
             if (pass !== confirmPass) {
                 alert("Passwords do not match!");
                 return;
             }
 
-            // Disable button during process
             submitBtn.innerText = "Creating Account...";
             submitBtn.disabled = true;
 
             try {
-                // 2. UNIQUE USERNAME CHECK (Global Firestore Check)
-                const usernameDoc = await db.collection("users").where("username", "==", username).get();
-                if (!usernameDoc.empty) {
+                // 1. UNIQUE USERNAME CHECK (Realtime Database Check)
+                const snapshot = await database.ref('users').orderByChild('username').equalTo(username).once('value');
+                if (snapshot.exists()) {
                     alert("This username is already taken. Please choose another.");
                     submitBtn.innerText = "Next Step";
                     submitBtn.disabled = false;
                     return;
                 }
 
-                // 3. CREATE ACCOUNT IN FIREBASE AUTH
+                // 2. CREATE ACCOUNT IN FIREBASE AUTH
                 const userCredential = await auth.createUserWithEmailAndPassword(email, pass);
                 const user = userCredential.user;
 
-                // 4. SAVE PROFILE TO FIRESTORE DATABASE
-                await db.collection("users").doc(user.uid).set({
+                // 3. SAVE PROFILE TO REALTIME DATABASE
+                await database.ref('users/' + user.uid).set({
                     username: username,
                     email: email,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    createdAt: firebase.database.ServerValue.TIMESTAMP
                 });
 
-                // 5. Update Local Session & Redirect
+                // 4. Update Local Session & Redirect
                 localStorage.setItem('tempUsername', username);
                 localStorage.setItem('isLoggedIn', 'true');
                 
+                // Final Redirect
                 window.location.href = 'styles.html';
 
             } catch (error) {
