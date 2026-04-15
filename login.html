@@ -7,6 +7,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    
     <style>
         body {
             margin: 0;
@@ -18,7 +19,6 @@
             align-items: center;
             color: white;
             padding: 20px;
-            box-sizing: border-box;
         }
 
         .glass-card {
@@ -30,7 +30,7 @@
             width: 100%;
             max-width: 380px;
             text-align: center;
-            box-sizing: border-box;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
         }
 
         .back-link {
@@ -40,15 +40,15 @@
             color: rgba(255, 255, 255, 0.6);
             text-decoration: none;
             font-size: 13px;
-            font-weight: 600;
             transition: 0.3s;
         }
 
-        .back-link:hover { color: white; transform: translateX(-3px); }
-        h2 { margin-top: 0; font-size: 2rem; font-weight: 800; letter-spacing: -1px; }
+        .back-link:hover { color: white; }
+
+        h2 { margin-top: 0; font-size: 2rem; font-weight: 800; }
         
         .input-group { text-align: left; margin-bottom: 20px; }
-        label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 600; margin-bottom: 8px; display: block; opacity: 0.8; }
+        label { font-size: 11px; text-transform: uppercase; font-weight: 600; margin-bottom: 8px; display: block; opacity: 0.8; }
 
         input {
             width: 100%;
@@ -58,12 +58,23 @@
             border-radius: 12px;
             color: white;
             font-size: 16px;
-            box-sizing: border-box;
             outline: none;
             transition: 0.3s;
+            box-sizing: border-box;
         }
 
-        input:focus { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.5); }
+        input:focus { background: rgba(255, 255, 255, 0.1); border-color: white; }
+
+        .forgot-pass {
+            display: block;
+            text-align: right;
+            font-size: 12px;
+            margin-top: 8px;
+            color: #4eff91;
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
 
         .btn-glass {
             background: white;
@@ -74,26 +85,23 @@
             cursor: pointer;
             width: 100%;
             border: none;
-            transition: 0.3s;
             text-transform: uppercase;
-            letter-spacing: 1px;
             margin-top: 10px;
         }
 
-        .btn-glass:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2); }
-        
-        #statusMessage { font-size: 13px; font-weight: 600; margin-top: 15px; display: none; line-height: 1.4; }
-        .error { color: #ff4d4d; animation: shake 0.4s ease; }
-        .success { color: #4eff91; }
-        
-        @keyframes shake { 
-            0%, 100% { transform: translateX(0); } 
-            25% { transform: translateX(-5px); } 
-            75% { transform: translateX(5px); } 
+        #statusMessage { 
+            font-size: 13px; 
+            margin-top: 15px; 
+            display: none; 
+            padding: 12px; 
+            border-radius: 10px; 
+            line-height: 1.4;
         }
+        .error { background: rgba(255, 77, 77, 0.15); color: #ff4d4d; border: 1px solid rgba(255, 77, 77, 0.3); }
+        .success { background: rgba(78, 255, 145, 0.15); color: #4eff91; border: 1px solid rgba(78, 255, 145, 0.3); }
 
         .footer-link { margin-top: 25px; font-size: 0.85rem; opacity: 0.6; }
-        .footer-link a { color: white; text-decoration: none; font-weight: 700; }
+        .footer-link a { color: white; font-weight: 700; text-decoration: none; }
     </style>
 </head>
 <body>
@@ -101,7 +109,7 @@
     <div class="glass-card">
         <a href="index.html" class="back-link">← Home</a>
         <h2>Welcome Back</h2>
-        <p style="opacity: 0.7; margin-bottom: 30px;">Sign in with your Gmail account.</p>
+        <p style="opacity: 0.7;">Sign in to manage your LinkTree.</p>
 
         <form id="loginForm">
             <div class="input-group">
@@ -111,18 +119,18 @@
             <div class="input-group">
                 <label>Password</label>
                 <input type="password" id="password" placeholder="••••••••" required>
+                <span class="forgot-pass" id="resetLink" onclick="sendResetEmail()">Reset Password?</span>
             </div>
             <button type="submit" id="loginBtn" class="btn-glass">Log In</button>
             <div id="statusMessage"></div>
         </form>
 
         <div class="footer-link">
-            Don't have an account? <a href="profile.html">Sign Up</a>
+            New here? <a href="profile.html">Create Account</a>
         </div>
     </div>
 
     <script>
-        // Your Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDjcNWpd7-zN4l--bdz_6NviRUthNnbZ5U",
             authDomain: "linktree-a41ae.firebaseapp.com",
@@ -137,52 +145,86 @@
         const auth = firebase.auth();
         const database = firebase.database();
 
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        // --- Standard Login ---
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
             const email = document.getElementById('email').value.trim().toLowerCase();
             const pass = document.getElementById('password').value;
-            const loginBtn = document.getElementById('loginBtn');
-            
-            // 1. Basic Gmail validation
-            if (!email.endsWith('@gmail.com')) {
-                showMessage("Please use a valid @gmail.com address.", "error");
-                return;
-            }
+            const btn = document.getElementById('loginBtn');
 
-            loginBtn.innerText = "Authenticating...";
-            loginBtn.disabled = true;
+            btn.innerText = "Checking...";
+            btn.disabled = true;
 
             try {
-                // 2. Perform Firebase Auth Sign In directly with Email
                 const userCredential = await auth.signInWithEmailAndPassword(email, pass);
                 const user = userCredential.user;
 
-                // 3. Fetch username from Database for the UI header
                 const userSnap = await database.ref('users/' + user.uid).once('value');
-                // If no username exists in DB, fallback to the email prefix (name before @)
                 const username = userSnap.exists() ? userSnap.val().username : email.split('@')[0];
 
-                // Success
-                showMessage("Success! Redirecting...", "success");
                 localStorage.setItem('isLoggedIn', 'true');
                 localStorage.setItem('tempUsername', username);
-
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 800);
-
-            } catch (error) {
-                // Friendly error messages
-                let friendlyMsg = error.message;
-                if (error.code === 'auth/user-not-found') friendlyMsg = "No account found with this Gmail.";
-                if (error.code === 'auth/wrong-password') friendlyMsg = "Incorrect password.";
                 
-                showMessage(friendlyMsg, "error");
-                loginBtn.innerText = "Log In";
-                loginBtn.disabled = false;
+                showMessage("Login Successful!", "success");
+                setTimeout(() => window.location.href = 'index.html', 1000);
+
+            } catch (err) {
+                showMessage("Login failed. Please check your credentials.", "error");
+                btn.innerText = "Log In";
+                btn.disabled = false;
             }
         });
+
+        // --- PASSWORD RESET LOGIC ---
+        async function sendResetEmail() {
+            const emailInput = document.getElementById('email').value.trim().toLowerCase();
+            const resetBtn = document.getElementById('resetLink');
+            
+            if (!emailInput) {
+                showMessage("Please enter your Gmail address first.", "error");
+                return;
+            }
+
+            // UI Feedback
+            resetBtn.innerText = "Checking...";
+            resetBtn.style.pointerEvents = "none";
+            showMessage("Verifying database...", "success");
+
+            try {
+                // 1. Fetch the entire 'users' node
+                const snapshot = await database.ref('users').once('value');
+                let emailFound = false;
+
+                if (snapshot.exists()) {
+                    const allUsers = snapshot.val();
+                    
+                    // 2. Loop through all database entries
+                    for (let userId in allUsers) {
+                        if (allUsers[userId].email && allUsers[userId].email.toLowerCase() === emailInput) {
+                            emailFound = true;
+                            break;
+                        }
+                    }
+                }
+
+                // 3. Conditional Check
+                if (emailFound) {
+                    // Match found: Send the link
+                    await auth.sendPasswordResetEmail(emailInput);
+                    showMessage("Reset link sent! Check your Gmail inbox.", "success");
+                } else {
+                    // No match found: Show error
+                    showMessage("Error: This Gmail is not registered in our database.", "error");
+                }
+
+            } catch (err) {
+                console.error(err);
+                showMessage("Process failed: " + err.message, "error");
+            } finally {
+                resetBtn.innerText = "Reset Password?";
+                resetBtn.style.pointerEvents = "auto";
+            }
+        }
 
         function showMessage(text, type) {
             const statusDiv = document.getElementById('statusMessage');
