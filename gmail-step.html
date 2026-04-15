@@ -28,13 +28,13 @@
             border-radius: 24px;
             width: 100%;
             max-width: 380px;
-            text-align: center; /* Centers all text, buttons, and inline elements */
+            text-align: center;
             box-shadow: 0 8px 32px rgba(0,0,0,0.3);
             box-sizing: border-box;
         }
 
         .back-link {
-            display: inline-block; /* Changed from block to inline-block for centering */
+            display: inline-block;
             margin-bottom: 20px;
             color: rgba(255, 255, 255, 0.6);
             text-decoration: none;
@@ -43,14 +43,11 @@
             transition: 0.3s;
         }
 
-        .back-link:hover {
-            color: white;
-        }
+        .back-link:hover { color: white; }
 
         h2 { margin-top: 0; font-size: 1.8rem; letter-spacing: -0.5px; }
         p { opacity: 0.8; font-size: 1rem; margin-bottom: 20px; }
 
-        /* Ensure form views are centered */
         #loggedOutView, #loggedInView {
             display: flex;
             flex-direction: column;
@@ -88,12 +85,8 @@
             color: white;
             margin-bottom: 10px;
             outline: none;
-            text-align: center; /* Centers the placeholder and typed text */
+            text-align: center;
             box-sizing: border-box;
-        }
-        
-        input::placeholder {
-            color: rgba(255, 255, 255, 0.4);
         }
     </style>
 </head>
@@ -103,11 +96,13 @@
         <a href="index.html" class="back-link">← Back to Home</a>
 
         <h2 id="statusTitle">Verify Identity</h2>
-        <p id="statusDesc">Sign in to save your LinkTree progress.</p>
+        <p id="statusDesc">Sign up to save your LinkTree progress.</p>
         
         <div id="loggedOutView">
-            <button class="btn-glass btn-primary" onclick="window.location.href='login.html'">Sign In with Gmail</button>
+            <button class="btn-glass btn-primary" onclick="window.location.href='profile.html'">Sign Up with Gmail</button>
+            
             <div style="margin: 20px 0; opacity: 0.3;">OR</div>
+            
             <input type="email" id="email" placeholder="Continue as guest (email@gmail.com)">
             <button class="btn-glass" onclick="guestNext()">Continue as Guest</button>
         </div>
@@ -120,7 +115,6 @@
     </div>
 
     <script>
-        // Your Firebase config
         const firebaseConfig = {
             apiKey: "AIzaSyDjcNWpd7-zN4l--bdz_6NviRUthNnbZ5U",
             authDomain: "linktree-a41ae.firebaseapp.com",
@@ -141,7 +135,7 @@
 
             if (user) {
                 loggedOutView.style.display = "none";
-                loggedInView.style.display = "flex"; // Changed to flex for centering
+                loggedInView.style.display = "flex";
                 
                 statusTitle.innerText = "Welcome Back";
                 statusDesc.innerText = "You are currently signed in as:";
@@ -150,7 +144,7 @@
                 localStorage.setItem('tempUserEmail', user.email);
                 localStorage.setItem('isLoggedIn', 'true');
             } else {
-                loggedOutView.style.display = "flex"; // Changed to flex for centering
+                loggedOutView.style.display = "flex";
                 loggedInView.style.display = "none";
             }
         });
