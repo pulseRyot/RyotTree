@@ -20,7 +20,9 @@
             box-sizing: border-box;
         }
 
+        /* Hide the card by default so logged-in users see nothing before redirect */
         .glass-card {
+            display: none; 
             background: rgba(255, 255, 255, 0.07);
             backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.15);
@@ -48,13 +50,6 @@
         h2 { margin-top: 0; font-size: 1.8rem; letter-spacing: -0.5px; }
         p { opacity: 0.8; font-size: 1rem; margin-bottom: 20px; }
 
-        #loggedOutView {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-        }
-
         .btn-glass {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(5px);
@@ -71,30 +66,18 @@
             box-sizing: border-box;
         }
 
-        .btn-glass:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-2px); }
-        
         .btn-primary { background: white; color: #0f0c29; }
         .btn-primary:hover { background: #f0f0f0; }
 
-        /* Loader for the split second before redirect */
-        .auto-redirect-msg { font-size: 0.85rem; opacity: 0.6; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="glass-card">
+    <div class="glass-card" id="authCard">
         <a href="index.html" class="back-link">← Back to Home</a>
-
-        <div id="loggedOutView">
-            <h2>Verify Identity</h2>
-            <p>Sign up to save your LinkTree progress.</p>
-            <button class="btn-glass btn-primary" onclick="window.location.href='profile.html'">Sign Up with Gmail</button>
-        </div>
-
-        <div id="redirectingView" style="display: none;">
-            <h2>Signing you in...</h2>
-            <p class="auto-redirect-msg">Taking you straight to your styles.</p>
-        </div>
+        <h2>Verify Identity</h2>
+        <p>Sign up to save your LinkTree progress.</p>
+        <button class="btn-glass btn-primary" onclick="window.location.href='profile.html'">Sign Up with Gmail</button>
     </div>
 
     <script>
@@ -111,29 +94,20 @@
         const auth = firebase.auth();
 
         auth.onAuthStateChanged((user) => {
-            const loggedOutView = document.getElementById('loggedOutView');
-            const redirectingView = document.getElementById('redirectingView');
+            const authCard = document.getElementById('authCard');
 
             if (user) {
-                // User is logged in, hide form and show redirect message
-                loggedOutView.style.display = "none";
-                redirectingView.style.display = "block";
-
+                // USER LOGGED IN: 
+                // Don't show the card at all. Save data and move immediately.
                 localStorage.setItem('tempUserEmail', user.email);
                 localStorage.setItem('isLoggedIn', 'true');
-                
-                // Straight to styles
-                proceed();
+                window.location.href = 'styles.html';
             } else {
-                // Stay on login page
-                loggedOutView.style.display = "flex";
-                redirectingView.style.display = "none";
+                // USER LOGGED OUT:
+                // Now it's safe to show the login card.
+                authCard.style.display = "block";
             }
         });
-
-        function proceed() {
-            window.location.href = 'styles.html';
-        }
     </script>
 </body>
 </html>
