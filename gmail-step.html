@@ -7,7 +7,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <style>
-        /* ... existing styles remain the same ... */
         body {
             margin: 0;
             font-family: 'Inter', sans-serif;
@@ -31,7 +30,6 @@
             max-width: 380px;
             text-align: center;
             box-sizing: border-box;
-            position: relative;
         }
 
         .back-link {
@@ -42,26 +40,10 @@
             text-decoration: none;
             font-size: 13px;
             font-weight: 600;
-            transition: 0.3s;
         }
 
-        .back-link:hover { color: white; transform: translateX(-3px); }
         h2 { margin-top: 0; font-size: 1.8rem; letter-spacing: -0.5px; }
-        p { opacity: 0.8; font-size: 1rem; margin-bottom: 10px; }
-
-        input {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 15px;
-            border-radius: 12px;
-            color: white;
-            font-size: 16px;
-            margin: 20px 0;
-            box-sizing: border-box;
-            outline: none;
-            transition: 0.3s;
-        }
+        p { opacity: 0.8; font-size: 1rem; margin-bottom: 20px; }
 
         .btn-glass {
             background: rgba(255, 255, 255, 0.1);
@@ -75,10 +57,24 @@
             width: 100%;
             transition: 0.3s;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            margin-top: 10px;
         }
 
         .btn-glass:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-2px); }
+        
+        .btn-primary { background: white; color: #0f0c29; }
+        .btn-primary:hover { background: #f0f0f0; }
+
+        input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 12px;
+            color: white;
+            margin-bottom: 10px;
+            outline: none;
+        }
     </style>
 </head>
 <body>
@@ -87,16 +83,23 @@
         <a href="index.html" class="back-link">← Back to Home</a>
 
         <h2 id="statusTitle">Verify Identity</h2>
-        <p id="statusDesc">Enter your Gmail to continue.</p>
+        <p id="statusDesc">Sign in to save your LinkTree progress.</p>
         
-        <div id="inputContainer">
-            <input type="email" id="email" placeholder="email@gmail.com">
-            <button class="btn-glass" onclick="nextPage()">Continue</button>
+        <div id="loggedOutView">
+            <button class="btn-glass btn-primary" onclick="window.location.href='login.html'">Sign In with Gmail</button>
+            <div style="margin: 20px 0; opacity: 0.3;">OR</div>
+            <input type="email" id="email" placeholder="Continue as guest (email@gmail.com)">
+            <button class="btn-glass" onclick="guestNext()">Continue as Guest</button>
+        </div>
+
+        <div id="loggedInView" style="display: none;">
+            <p id="userEmailDisplay" style="font-weight: 600; color: #4eff91;"></p>
+            <button class="btn-glass btn-primary" onclick="proceed()">Continue to Styles</button>
+            <button class="btn-glass" style="font-size: 12px; opacity: 0.6; background: none;" onclick="firebase.auth().signOut().then(() => location.reload())">Switch Account</button>
         </div>
     </div>
 
     <script>
-        // --- Firebase Config (MUST MATCH YOUR LOGIN PAGE) ---
         const firebaseConfig = {
             apiKey: "AIzaSyDjcNWpd7-zN4l--bdz_6NviRUthNnbZ5U",
             authDomain: "linktree-a41ae.firebaseapp.com",
@@ -109,35 +112,43 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
 
-        // Check if user is already logged in via Firebase
         auth.onAuthStateChanged((user) => {
+            const loggedOutView = document.getElementById('loggedOutView');
+            const loggedInView = document.getElementById('loggedInView');
+            const statusTitle = document.getElementById('statusTitle');
+            const statusDesc = document.getElementById('statusDesc');
+
             if (user) {
-                // USER HAS AN ACCOUNT & IS LOGGED IN
-                const userEmail = user.email;
+                // User is signed in, but we DON'T redirect. We show a "Continue" button.
+                loggedOutView.style.display = "none";
+                loggedInView.style.display = "block";
                 
-                // Update UI
-                document.getElementById('statusTitle').innerText = "Account Found";
-                document.getElementById('statusDesc').innerText = `Logged in as: ${userEmail}`;
-                document.getElementById('inputContainer').style.display = "none";
+                statusTitle.innerText = "Welcome Back";
+                statusDesc.innerText = "You are currently signed in as:";
+                document.getElementById('userEmailDisplay').innerText = user.email;
 
-                // Save to local storage for the next step and redirect
-                localStorage.setItem('tempUserEmail', userEmail);
+                localStorage.setItem('tempUserEmail', user.email);
                 localStorage.setItem('isLoggedIn', 'true');
-
-                setTimeout(() => {
-                    window.location.href = 'styles.html';
-                }, 1200);
+            } else {
+                // User is not signed in
+                loggedOutView.style.display = "block";
+                loggedInView.style.display = "none";
             }
         });
 
-        function nextPage() {
+        function guestNext() {
             const val = document.getElementById('email').value.trim();
             if(val.includes('@gmail.com')) {
                 localStorage.setItem('tempUserEmail', val);
-                window.location.href = 'styles.html';
+                localStorage.setItem('isLoggedIn', 'false');
+                proceed();
             } else { 
-                alert("Please enter a valid Gmail address."); 
+                alert("Please enter a valid Gmail address to continue as guest."); 
             }
+        }
+
+        function proceed() {
+            window.location.href = 'styles.html';
         }
     </script>
 </body>
