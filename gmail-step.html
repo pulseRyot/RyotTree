@@ -48,7 +48,7 @@
         h2 { margin-top: 0; font-size: 1.8rem; letter-spacing: -0.5px; }
         p { opacity: 0.8; font-size: 1rem; margin-bottom: 20px; }
 
-        #loggedOutView, #loggedInView {
+        #loggedOutView {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -76,18 +76,8 @@
         .btn-primary { background: white; color: #0f0c29; }
         .btn-primary:hover { background: #f0f0f0; }
 
-        input {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 15px;
-            border-radius: 12px;
-            color: white;
-            margin-bottom: 10px;
-            outline: none;
-            text-align: center;
-            box-sizing: border-box;
-        }
+        /* Loader for the split second before redirect */
+        .auto-redirect-msg { font-size: 0.85rem; opacity: 0.6; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -95,17 +85,15 @@
     <div class="glass-card">
         <a href="index.html" class="back-link">← Back to Home</a>
 
-        <h2 id="statusTitle">Verify Identity</h2>
-        <p id="statusDesc">Sign up to save your LinkTree progress.</p>
-        
         <div id="loggedOutView">
+            <h2>Verify Identity</h2>
+            <p>Sign up to save your LinkTree progress.</p>
             <button class="btn-glass btn-primary" onclick="window.location.href='profile.html'">Sign Up with Gmail</button>
-            
         </div>
 
-        <div id="loggedInView" style="display: none;">
-            <p id="userEmailDisplay" style="font-weight: 600; color: #4eff91;"></p>
-            <button class="btn-glass btn-primary" onclick="proceed()">Continue to Styles</button>
+        <div id="redirectingView" style="display: none;">
+            <h2>Signing you in...</h2>
+            <p class="auto-redirect-msg">Taking you straight to your styles.</p>
         </div>
     </div>
 
@@ -124,36 +112,24 @@
 
         auth.onAuthStateChanged((user) => {
             const loggedOutView = document.getElementById('loggedOutView');
-            const loggedInView = document.getElementById('loggedInView');
-            const statusTitle = document.getElementById('statusTitle');
-            const statusDesc = document.getElementById('statusDesc');
+            const redirectingView = document.getElementById('redirectingView');
 
             if (user) {
+                // User is logged in, hide form and show redirect message
                 loggedOutView.style.display = "none";
-                loggedInView.style.display = "flex";
-                
-                statusTitle.innerText = "Welcome Back";
-                statusDesc.innerText = "You are currently signed in as:";
-                document.getElementById('userEmailDisplay').innerText = user.email;
+                redirectingView.style.display = "block";
 
                 localStorage.setItem('tempUserEmail', user.email);
                 localStorage.setItem('isLoggedIn', 'true');
+                
+                // Straight to styles
+                proceed();
             } else {
+                // Stay on login page
                 loggedOutView.style.display = "flex";
-                loggedInView.style.display = "none";
+                redirectingView.style.display = "none";
             }
         });
-
-        function guestNext() {
-            const val = document.getElementById('email').value.trim();
-            if(val.includes('@gmail.com')) {
-                localStorage.setItem('tempUserEmail', val);
-                localStorage.setItem('isLoggedIn', 'false');
-                proceed();
-            } else { 
-                alert("Please enter a valid Gmail address to continue as guest."); 
-            }
-        }
 
         function proceed() {
             window.location.href = 'styles.html';
