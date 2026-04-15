@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LinkTree | Modern</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    
     <style>
         body {
             margin: 0;
@@ -47,9 +50,8 @@
             transform: translateY(-1px);
         }
 
-        /* --- Profile UI --- */
         .user-profile {
-            display: none; /* Hidden by default, shown via JS */
+            display: none;
             align-items: center;
             gap: 12px;
             background: rgba(255, 255, 255, 0.05);
@@ -71,53 +73,16 @@
             text-transform: uppercase;
         }
 
-        .username-display {
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .btn-logout {
-            font-size: 12px;
-            opacity: 0.5;
-            cursor: pointer;
-            transition: 0.3s;
-            text-decoration: underline;
-        }
-
+        .username-display { font-weight: 600; font-size: 14px; }
+        .btn-logout { font-size: 12px; opacity: 0.5; cursor: pointer; transition: 0.3s; text-decoration: underline; }
         .btn-logout:hover { opacity: 1; }
 
-        /* --- Rest of Styles --- */
-        header { 
-            padding: 100px 20px 40px 20px; 
-            text-align: center;
-        }
+        /* --- Content --- */
+        header { padding: 100px 20px 40px 20px; text-align: center; }
+        h1 { font-weight: 800; font-size: 4rem; margin: 0; letter-spacing: -2px; background: linear-gradient(to bottom, #ffffff, #b0b0b0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        p { opacity: 0.7; font-size: 1.2rem; margin-top: 15px; max-width: 600px; line-height: 1.6; text-align: center;}
 
-        h1 { 
-            font-weight: 800; 
-            font-size: 4rem; 
-            margin: 0; 
-            letter-spacing: -2px; 
-            background: linear-gradient(to bottom, #ffffff, #b0b0b0);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        p { 
-            opacity: 0.7; 
-            font-size: 1.2rem; 
-            margin-top: 15px;
-            max-width: 600px;
-            line-height: 1.6;
-        }
-
-        .hero-images { 
-            display: flex; 
-            justify-content: center; 
-            gap: 25px; 
-            margin-top: 40px; 
-            padding: 0 20px;
-        }
-
+        .hero-images { display: flex; justify-content: center; gap: 25px; margin-top: 40px; padding: 0 20px; }
         .example-img { 
             width: 160px; 
             height: 250px; 
@@ -130,36 +95,18 @@
             background-position: center;
         }
 
+        /* --- Your Verified Image Links --- */
         .img-1 { background-image: url('https://cdn.discordapp.com/attachments/1101409428944724000/1493333153899872338/Style_-_1.png?ex=69de9660&is=69dd44e0&hm=19c853d6832b86333070c16ed841cd9958d626f796d9ba0bb58a9c8f7ec96559&'); }
         .img-2 { background-image: url('https://cdn.discordapp.com/attachments/1101409428944724000/1493334445846040749/Style_-_2.png?ex=69de9794&is=69dd4614&hm=0562d27843d1220980ac89d77333a7a66bbac1fb64ea67bd1e99915f9a771065&'); }
         .img-3 { background-image: url('https://cdn.discordapp.com/attachments/1101409428944724000/1493335823217852487/Style_-_3.png?ex=69de98dd&is=69dd475d&hm=efb26972d5638242fd4fc7266b6c438fecb3d001fff9fd0e31c6efe4ff704947&'); }
 
-        .btn-glass {
-            margin: 60px 0;
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 20px 50px;
-            font-size: 18px;
-            font-weight: 700;
-            border-radius: 16px;
-            cursor: pointer;
-            transition: 0.3s;
-            text-transform: uppercase;
-        }
+        .btn-glass { margin: 60px 0; background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 20px 50px; font-size: 18px; font-weight: 700; border-radius: 16px; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
+        .btn-glass:hover { background: rgba(255, 255, 255, 0.15); transform: translateY(-3px); }
 
         @media (max-width: 768px) {
-            header { padding: 80px 20px 20px 20px; }
             h1 { font-size: 2.8rem; }
-            .hero-images {
-                gap: 12px;
-                overflow-x: auto;
-                width: 100vw;
-                padding: 10px 40px;
-            }
+            .hero-images { gap: 12px; overflow-x: auto; width: 100vw; padding: 10px 40px; }
             .example-img { width: 130px; height: 200px; flex-shrink: 0; }
-            .btn-glass { width: 85%; padding: 18px 0; font-size: 16px; }
         }
     </style>
 </head>
@@ -191,6 +138,19 @@
     <button class="btn-glass" onclick="window.location.href='gmail-step.html'">Build Your Link Tree</button>
 
     <script>
+        // --- Firebase Configuration ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyDjcNWpd7-zN4l--bdz_6NviRUthNnbZ5U",
+            authDomain: "linktree-a41ae.firebaseapp.com",
+            projectId: "linktree-a41ae",
+            storageBucket: "linktree-a41ae.firebasestorage.app",
+            messagingSenderId: "829854289113",
+            appId: "1:829854289113:web:e625d84c546ed06b18c2c8"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
         window.onload = function() {
             const isLoggedIn = localStorage.getItem('isLoggedIn');
             const authBtn = document.getElementById('authBtn');
@@ -200,23 +160,29 @@
 
             if (isLoggedIn === 'true') {
                 const username = localStorage.getItem('tempUsername') || "User";
-                
-                // Switch UI
                 authBtn.style.display = "none";
                 userProfile.style.display = "flex";
-                
-                // Set data
                 userName.innerText = username;
                 userInitials.innerText = username.charAt(0);
             }
         };
 
         function logout() {
-            localStorage.removeItem('isLoggedIn');
-            // We keep the username in localstorage so the login page can still greet them
-            location.reload();
+            // 1. Sign out from Firebase session
+            auth.signOut().then(() => {
+                // 2. Clear localStorage flags
+                localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('tempUserEmail');
+                
+                // 3. Reload to show "Create Account" again
+                location.reload();
+            }).catch((error) => {
+                console.error("Sign out error:", error);
+                // Fallback logout if Firebase fails
+                localStorage.removeItem('isLoggedIn');
+                location.reload();
+            });
         }
     </script>
-
 </body>
 </html>
