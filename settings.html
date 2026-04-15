@@ -8,8 +8,13 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
     <style>
+        :root {
+            --accent: #00dbde;
+            --glass: rgba(255, 255, 255, 0.07);
+            --border: rgba(255, 255, 255, 0.15);
+        }
+
         body {
             margin: 0;
             font-family: 'Inter', sans-serif;
@@ -17,84 +22,168 @@
             color: white;
             min-height: 100vh;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
         }
 
-        .settings-container {
-            background: rgba(255, 255, 255, 0.07);
+        /* --- Sidebar Navigation --- */
+        .sidebar {
+            width: 250px;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 30px 20px;
+        }
+
+        .sidebar h2 { font-size: 1.2rem; margin-bottom: 30px; opacity: 0.8; }
+
+        .nav-item {
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .nav-item:hover { background: var(--glass); color: white; }
+        .nav-item.active { background: var(--glass); color: white; border-left: 4px solid var(--accent); }
+
+        /* --- Main Content Area --- */
+        .main-content {
+            flex: 1;
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-y: auto;
+        }
+
+        .settings-card {
+            background: var(--glass);
             backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            border: 1px solid var(--border);
             border-radius: 30px;
             width: 100%;
-            max-width: 450px;
+            max-width: 600px;
             padding: 40px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
-            text-align: center;
+            display: none; /* Hidden by default */
         }
 
-        .profile-upload {
-            position: relative;
-            width: 150px;
-            height: 150px;
+        .settings-card.active { display: block; }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
             margin: 0 auto 20px;
             border-radius: 50%;
-            padding: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             background: linear-gradient(45deg, #00dbde, #fc00ff);
-            cursor: pointer;
-            transition: transform 0.3s ease;
-            box-shadow: 0 0 20px rgba(0, 219, 222, 0.4);
+            font-size: 50px;
+            font-weight: 800;
+            text-transform: uppercase;
         }
 
-        .profile-upload:hover { transform: scale(1.05); }
-
-        #profileImage {
+        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-group label { display: block; margin-bottom: 8px; font-size: 0.9rem; opacity: 0.7; }
+        
+        input {
             width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            object-fit: cover;
-            background: #222;
-            display: block;
-        }
-
-        .status-msg {
-            font-size: 0.95rem;
-            font-weight: 700;
-            margin-top: 20px;
-            min-height: 1.5em;
-            text-shadow: 0 0 10px rgba(0,0,0,0.5);
-        }
-
-        .btn-home {
-            position: absolute;
-            top: 20px;
-            text-decoration: none;
-            color: white;
-            background: rgba(255,255,255,0.1);
-            padding: 10px 20px;
+            padding: 12px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--border);
             border-radius: 10px;
-            font-weight: 600;
-            transition: 0.3s;
+            color: white;
+            box-sizing: border-box;
+            outline: none;
         }
-        .btn-home:hover { background: rgba(255,255,255,0.2); }
+
+        .btn-action {
+            background: var(--accent);
+            color: #0f0c29;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s;
+        }
+
+        .btn-action:active { transform: scale(0.98); }
+
+        .status-msg { font-size: 0.85rem; margin-top: 15px; text-align: center; min-height: 1.2rem; }
+
+        /* Payments styling */
+        .plan-box {
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px dashed var(--border);
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
 
-<a href="index.html" class="btn-home"><i class="fa-solid fa-house"></i> Home</a>
+<div class="sidebar">
+    <h2>Settings</h2>
+    <div class="nav-item active" onclick="switchTab('profile', this)"><i class="fa-solid fa-user"></i> Profile</div>
+    <div class="nav-item" onclick="switchTab('account', this)"><i class="fa-solid fa-envelope"></i> Switch Email</div>
+    <div class="nav-item" onclick="switchTab('payments', this)"><i class="fa-solid fa-credit-card"></i> Payments</div>
+    <div class="nav-item" onclick="switchTab('privacy', this)"><i class="fa-solid fa-shield-halved"></i> Privacy</div>
+    <div class="nav-item" onclick="window.location.href='index.html'" style="margin-top: auto; color: #ff4d4d;"><i class="fa-solid fa-arrow-left"></i> Exit</div>
+</div>
 
-<div class="settings-container">
-    <h2>Profile Picture</h2>
-    <p style="opacity: 0.7; font-size: 0.9rem; margin-bottom: 25px;">Click the image to upload and save automatically</p>
-
-    <div class="profile-upload" onclick="document.getElementById('autoFileInput').click()">
-        <img id="profileImage" src="https://via.placeholder.com/150" alt="Profile">
-        <input type="file" id="autoFileInput" style="display: none;" accept="image/*" onchange="handleImageUpdate(this)">
+<div class="main-content">
+    <div id="profile" class="settings-card active">
+        <h3>Profile Settings</h3>
+        <div id="userInitialCircle" class="profile-avatar">?</div>
+        
+        <div class="input-group">
+            <label>Username</label>
+            <input type="text" id="usernameInput" placeholder="Loading name...">
+        </div>
+        <button class="btn-action" onclick="saveUsername()">Update Username</button>
+        <div id="saveStatus" class="status-msg"></div>
     </div>
 
-    <div id="uploadStatus" class="status-msg"></div>
+    <div id="account" class="settings-card">
+        <h3>Switch Account</h3>
+        <p style="opacity: 0.7; font-size: 0.9rem;">Logged in as: <span id="currentEmailDisplay" style="color: var(--accent);">...</span></p>
+        
+        <div class="input-group">
+            <label>New Email Address</label>
+            <input type="email" id="newEmailInput" placeholder="newemail@gmail.com">
+        </div>
+        <button class="btn-action" onclick="updateEmail()">Update Email</button>
+    </div>
+
+    <div id="payments" class="settings-card">
+        <h3>Payments & Billing</h3>
+        <div class="plan-box">
+            <p style="margin: 0;"><strong>Current Plan:</strong> <span style="color: var(--accent);">Pro Member</span></p>
+            <p style="font-size: 0.8rem; opacity: 0.6; margin-top: 5px;">Billed monthly. Next payment: May 1, 2026</p>
+        </div>
+        <p style="font-size: 0.85rem; margin-top: 20px; opacity: 0.8;">Payment methods are managed securely through Stripe.</p>
+    </div>
+
+    <div id="privacy" class="settings-card">
+        <h3>Privacy Policy</h3>
+        <div style="font-size: 0.9rem; opacity: 0.8; line-height: 1.6;">
+            <p>We take your privacy seriously. Your data is encrypted and stored using Google Firebase.</p>
+            <ul>
+                <li>Usernames are public for your profile.</li>
+                <li>Email addresses are never shared.</li>
+                <li>We do not track your activity across other sites.</li>
+            </ul>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -110,64 +199,92 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
-    const storage = firebase.storage();
 
-    let unsubscribe = null;
+    // --- TAB SWITCHING ---
+    function switchTab(tabId, element) {
+        document.querySelectorAll('.settings-card').forEach(card => card.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+        
+        document.getElementById(tabId).classList.add('active');
+        element.classList.add('active');
+    }
 
-    // REAL-TIME LISTENER: This ensures the image is ALWAYS correct and updates instantly
+    // --- AUTH LISTENER & DATA LOADING ---
     auth.onAuthStateChanged((user) => {
         if (user) {
-            // Listen to database changes in real-time
-            if (unsubscribe) unsubscribe();
-            unsubscribe = db.collection('users').doc(user.uid).onSnapshot((doc) => {
-                if (doc.exists && doc.data().profilePic) {
-                    const newUrl = doc.data().profilePic;
-                    // Force the image to update on the website
-                    document.getElementById('profileImage').src = newUrl;
+            document.getElementById('currentEmailDisplay').innerText = user.email;
+
+            // REAL-TIME LISTENER for Username
+            db.collection('users').doc(user.uid).onSnapshot((doc) => {
+                const circle = document.getElementById('userInitialCircle');
+                const input = document.getElementById('usernameInput');
+
+                if (doc.exists && doc.data().username) {
+                    const savedName = doc.data().username;
+                    if (document.activeElement !== input) {
+                        input.value = savedName;
+                    }
+                    circle.innerText = savedName.charAt(0).toUpperCase();
+                } else {
+                    input.placeholder = "Enter your username";
+                    circle.innerText = user.email.charAt(0).toUpperCase();
                 }
-            }, (error) => console.error("Snapshot error:", error));
+            });
         } else {
             window.location.href = 'index.html';
         }
     });
 
-    async function handleImageUpdate(input) {
-        const file = input.files[0];
+    // --- SAVE USERNAME ---
+    async function saveUsername() {
+        const name = document.getElementById('usernameInput').value.trim();
         const user = auth.currentUser;
-        const status = document.getElementById('uploadStatus');
+        const status = document.getElementById('saveStatus');
 
-        if (!file || !user) return;
+        if (!user) return;
+        if (!name) {
+            status.style.color = "#ff4d4d";
+            status.innerText = "Please enter a name.";
+            return;
+        }
+
+        status.style.color = "#00dbde";
+        status.innerText = "Saving...";
 
         try {
-            status.style.color = "#00dbde";
-            status.innerText = "Saving to Database...";
-
-            // 1. Upload file to Storage (using a fixed path so it overwrites/updates)
-            const storageRef = storage.ref(`profiles/${user.uid}/profile_picture`);
-            const snapshot = await storageRef.put(file);
-            
-            // 2. Get the permanent URL
-            const downloadURL = await snapshot.ref.getDownloadURL();
-
-            // 3. Update Firestore with the permanent link
-            // This triggers the 'onSnapshot' listener above automatically
-            await db.collection('users').doc(user.uid).set({
-                profilePic: downloadURL,
+            await db.collection('users').doc(user.uid).set({ 
+                username: name,
                 lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
             }, { merge: true });
 
             status.style.color = "#00ffcc";
-            status.innerText = "✅ Profile Picture Saved Successfully!";
-
-            setTimeout(() => { status.innerText = ""; }, 4000);
-
-        } catch (error) {
-            console.error(error);
+            status.innerText = "Saved successfully!";
+            setTimeout(() => { status.innerText = ""; }, 3000);
+        } catch (e) {
+            console.error(e);
             status.style.color = "#ff4d4d";
-            status.innerText = "Error saving: " + error.message;
+            status.innerText = "❌ Save Failed: Check Rules";
+        }
+    }
+
+    // --- UPDATE EMAIL ---
+    async function updateEmail() {
+        const newEmail = document.getElementById('newEmailInput').value.trim();
+        const user = auth.currentUser;
+
+        if (!newEmail || !newEmail.includes('@')) {
+            alert("Please enter a valid email address.");
+            return;
+        }
+
+        try {
+            await user.updateEmail(newEmail);
+            alert("Email updated! Please log in again with your new email.");
+            auth.signOut().then(() => window.location.href = 'index.html');
+        } catch (e) {
+            alert("Error: " + e.message + "\n\n(For security, you may need to log out and log back in before changing your email)");
         }
     }
 </script>
-
 </body>
 </html>
