@@ -196,11 +196,9 @@
         const auth = firebase.auth();
         const database = firebase.database();
 
-        // AUTH CHECK FOR BUTTON VISIBILITY
         auth.onAuthStateChanged((user) => {
             const profileBtn = document.getElementById('userProfile');
             if (user) {
-                // User is signed in
                 database.ref('users/' + user.uid).on('value', (snapshot) => {
                     if (snapshot.exists()) {
                         const data = snapshot.val();
@@ -210,15 +208,12 @@
                         if (data.profilePic) {
                             document.getElementById('userInitials').innerHTML = `<img src="${data.profilePic}">`;
                         }
-                        // Only show the button AFTER the data is ready
                         profileBtn.style.display = "flex";
                     } else {
-                        // Logged in but no DB profile - still show generic profile
                         profileBtn.style.display = "flex";
                     }
                 });
             } else {
-                // No user is signed in - keep the button hidden
                 profileBtn.style.display = "none";
             }
         });
