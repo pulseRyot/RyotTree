@@ -35,7 +35,6 @@
             max-width: 600px;
         }
 
-        /* --- Header --- */
         .settings-header {
             display: flex;
             align-items: center;
@@ -47,7 +46,6 @@
             font-size: 2rem;
             font-weight: 800;
             margin: 0;
-            letter-spacing: -1px;
             background: linear-gradient(to bottom, #ffffff, #b0b0b0);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -61,17 +59,9 @@
             border-radius: 50px;
             border: 1px solid var(--glass-border);
             font-size: 14px;
-            font-weight: 600;
-            backdrop-filter: blur(10px);
             transition: 0.3s;
         }
 
-        .back-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateX(-5px);
-        }
-
-        /* --- Glass Cards --- */
         .settings-card {
             background: var(--glass);
             backdrop-filter: blur(15px);
@@ -79,20 +69,10 @@
             border-radius: 24px;
             padding: 30px;
             margin-bottom: 25px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
-        h2 { 
-            margin-top: 0; 
-            font-size: 1.1rem; 
-            font-weight: 700; 
-            text-transform: uppercase; 
-            letter-spacing: 1px;
-            opacity: 0.8;
-            margin-bottom: 20px;
-        }
+        h2 { font-size: 1.1rem; text-transform: uppercase; opacity: 0.8; margin-bottom: 20px; }
 
-        /* --- Profile Section --- */
         .profile-section {
             display: flex;
             flex-direction: column;
@@ -110,7 +90,6 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            box-shadow: 0 0 20px rgba(255, 0, 204, 0.3);
         }
 
         .avatar-preview img {
@@ -121,15 +100,25 @@
             background: #1a1a1a;
         }
 
-        /* --- Plan Grid --- */
-        .plan-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+        .input-group {
+            width: 100%;
+            margin-top: 15px;
         }
 
-        .plan-option input { display: none; }
+        .input-group label { display: block; font-size: 0.8rem; margin-bottom: 5px; opacity: 0.7; }
 
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: white;
+            box-sizing: border-box;
+        }
+
+        .plan-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .plan-option input { display: none; }
         .plan-content {
             border: 1px solid var(--glass-border);
             padding: 20px;
@@ -137,16 +126,9 @@
             text-align: center;
             cursor: pointer;
             transition: 0.3s;
-            background: rgba(255,255,255,0.02);
         }
+        .plan-option input:checked + .plan-content { background: var(--accent); border-color: transparent; }
 
-        .plan-option input:checked + .plan-content {
-            background: var(--accent);
-            border-color: transparent;
-            transform: scale(1.05);
-        }
-
-        /* --- Buttons --- */
         .btn {
             cursor: pointer;
             border: none;
@@ -155,38 +137,13 @@
             font-weight: 700;
             width: 100%;
             transition: 0.3s ease;
-            font-family: inherit;
         }
 
-        .btn-primary { 
-            background: white; 
-            color: #0f0c29; 
-            margin-top: 20px;
-        }
-        
-        .btn-secondary { 
-            background: var(--glass); 
-            color: white; 
-            border: 1px solid var(--glass-border); 
-        }
-
-        .btn-danger { 
-            background: transparent; 
-            color: var(--danger); 
-            border: 1px solid rgba(255, 77, 77, 0.3);
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-
-        .btn-danger:hover {
-            background: var(--danger);
-            color: white;
-        }
-
-        .small-text { font-size: 0.85rem; opacity: 0.5; margin-top: 15px; line-height: 1.4; }
+        .btn-primary { background: white; color: #0f0c29; margin-top: 20px; }
+        .btn-secondary { background: var(--glass); color: white; border: 1px solid var(--glass-border); }
+        .btn-danger { background: transparent; color: var(--danger); border: 1px solid rgba(255, 77, 77, 0.3); }
+        .btn-danger:hover { background: var(--danger); color: white; }
+        .small-text { font-size: 0.85rem; opacity: 0.5; margin-top: 15px; }
     </style>
 </head>
 <body>
@@ -207,6 +164,11 @@
             <button class="btn btn-secondary" onclick="document.getElementById('profileInput').click()">
                 <i class="fas fa-camera"></i> Change Photo
             </button>
+            
+            <div class="input-group">
+                <label>Display Name</label>
+                <input type="text" id="usernameInput" placeholder="Enter your name">
+            </div>
         </div>
         <button id="saveProfile" class="btn btn-primary">Save Changes</button>
     </section>
@@ -216,33 +178,25 @@
         <div class="plan-grid">
             <label class="plan-option">
                 <input type="radio" name="plan" value="free" checked>
-                <div class="plan-content">
-                    <div style="font-size: 0.9rem; opacity: 0.7;">Basic</div>
-                    <strong>Free</strong>
-                </div>
+                <div class="plan-content"><div>Basic</div><strong>Free</strong></div>
             </label>
             <label class="plan-option">
                 <input type="radio" name="plan" value="pro">
-                <div class="plan-content">
-                    <div style="font-size: 0.9rem; opacity: 0.7;">Premium</div>
-                    <strong>$9.99</strong>
-                </div>
+                <div class="plan-content"><div>Premium</div><strong>$9.99</strong></div>
             </label>
         </div>
     </section>
 
     <section class="settings-card">
         <h2>Account Security</h2>
-        <p class="small-text">Managing your data and account visibility.</p>
-        <div style="margin-top: 25px; border-top: 1px solid var(--glass-border); padding-top: 25px;">
+        <div style="border-top: 1px solid var(--glass-border); padding-top: 20px;">
             <button id="deleteAccount" class="btn btn-danger">Delete Account</button>
-            <p class="small-text"><i class="fas fa-exclamation-triangle"></i> This action is irreversible. All your LinkTree data will be deleted.</p>
+            <p class="small-text">This will erase your entire LinkTree presence.</p>
         </div>
     </section>
 </div>
 
 <script>
-    // Config matches your reference
     const firebaseConfig = {
         apiKey: "AIzaSyDjcNWpd7-zN4l--bdz_6NviRUthNnbZ5U",
         authDomain: "linktree-a41ae.firebaseapp.com",
@@ -252,7 +206,6 @@
         appId: "1:829854289113:web:e625d84c546ed06b18c2c8"
     };
 
-    // Initialize using Compat API
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
@@ -260,8 +213,21 @@
 
     const profileInput = document.getElementById('profileInput');
     const avatarImg = document.getElementById('avatarImg');
+    const usernameInput = document.getElementById('usernameInput');
     const saveBtn = document.getElementById('saveProfile');
-    const deleteBtn = document.getElementById('deleteAccount');
+
+    // --- NEW: AUTO-LOAD PROFILE DATA ---
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            db.collection('users').doc(user.uid).get().then((doc) => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    if (data.profilePic) avatarImg.src = data.profilePic;
+                    if (data.username) usernameInput.value = data.username;
+                }
+            });
+        }
+    });
 
     // Preview
     profileInput.onchange = () => {
@@ -269,28 +235,30 @@
         if (file) avatarImg.src = URL.createObjectURL(file);
     };
 
-    // Save Logic (using Compat Syntax)
+    // Save Logic
     saveBtn.onclick = async () => {
         const file = profileInput.files[0];
         const user = auth.currentUser;
+        const newUsername = usernameInput.value;
 
         if (!user) return alert("Please log in first");
-        if (!file) return alert("Select an image first");
 
         try {
-            saveBtn.innerText = "Uploading...";
-            const storageRef = storage.ref(`profiles/${user.uid}`);
-            
-            // 1. Upload
-            await storageRef.put(file);
-            const url = await storageRef.getDownloadURL();
+            saveBtn.innerText = "Saving...";
+            let updateData = { username: newUsername };
 
-            // 2. Update Firestore
-            await db.collection('users').doc(user.uid).set({
-                profilePic: url
-            }, { merge: true });
+            // If a new file was selected, upload it
+            if (file) {
+                const storageRef = storage.ref(`profiles/${user.uid}`);
+                await storageRef.put(file);
+                const url = await storageRef.getDownloadURL();
+                updateData.profilePic = url;
+            }
 
-            alert("Profile updated successfully!");
+            // Save to Firestore (Merge ensures we don't delete existing links)
+            await db.collection('users').doc(user.uid).set(updateData, { merge: true });
+
+            alert("Settings saved!");
         } catch (e) {
             console.error(e);
             alert("Error: " + e.message);
@@ -299,17 +267,11 @@
         }
     };
 
-    // Delete Logic
-    deleteBtn.onclick = async () => {
-        if (confirm("Are you sure? This will delete your entire tree.")) {
+    document.getElementById('deleteAccount').onclick = async () => {
+        if (confirm("Delete permanently?")) {
             const user = auth.currentUser;
-            try {
-                await db.collection('users').doc(user.uid).delete();
-                await user.delete();
-                window.location.href = "index.html";
-            } catch (e) {
-                alert("Please log in again to delete your account.");
-            }
+            await db.collection('users').doc(user.uid).delete();
+            await user.delete().then(() => window.location.href = "index.html");
         }
     };
 </script>
