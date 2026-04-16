@@ -52,8 +52,12 @@
             gap: 10px;
         }
 
-        .nav-btn:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-2px); }
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
 
+        /* Profile Specific */
         .user-profile {
             display: none; 
             padding: 6px 18px 6px 8px;
@@ -76,7 +80,7 @@
 
         .avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* --- GALLERY --- */
+        /* --- GALLERY & CARDS --- */
         header { padding: 100px 20px 30px 20px; text-align: center; }
         h1 { font-weight: 800; font-size: 2.5rem; margin: 0; letter-spacing: -1px; }
 
@@ -103,13 +107,16 @@
             border-color: #ffffff;
             transform: scale(1.03);
             background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
         .preview-box { height: 200px; background: #111; overflow: hidden; }
-        .preview-box img { width: 100%; height: 100%; object-fit: cover; }
+        .preview-box img { width: 100%; height: 100%; object-fit: cover; transition: 0.3s; }
+        .style-card:hover .preview-box img { transform: scale(1.05); }
 
         .card-info { padding: 20px; text-align: center; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
 
+        /* --- ACTION BAR --- */
         .action-bar {
             position: fixed;
             bottom: 0; left: 0; right: 0;
@@ -132,6 +139,11 @@
         }
 
         .btn-continue.ready { opacity: 1; pointer-events: auto; }
+
+        @media (max-width: 600px) {
+            header { padding: 80px 20px 20px 20px; }
+            .nav-btn span { display: none; } 
+        }
     </style>
 </head>
 <body>
@@ -147,14 +159,26 @@
         </div>
     </div>
 
-    <header><h1>Pick Your Style</h1></header>
+    <header>
+        <h1>Pick Your Style</h1>
+    </header>
 
     <div class="gallery-grid">
         <div id="card-Blue" class="style-card" onclick="pickStyle(this, 'Blue', 'linear-gradient(180deg, #001529 0%, #00a8ff 100%)')">
             <div class="preview-box"><img src="https://cdn.discordapp.com/attachments/1101409428944724000/1493332023861973154/Untitled1.png?ex=69de9553&is=69dd43d3&hm=6c2663db77ee49f6254ef826fb18855415cee18850cc55953c01534a8f3e2122&"></div>
             <div class="card-info">Ocean Blue</div>
         </div>
+
+        <div id="card-Red" class="style-card" onclick="pickStyle(this, 'Red', 'linear-gradient(45deg, #ee0979, #ff6a00)')">
+            <div class="preview-box"><img src="https://cdn.discordapp.com/attachments/1101409428944724000/1493333820865253547/Style_-_2.png?ex=69de96ff&is=69dd457f&hm=20b3fef62a9500ea0735a542b758565aa3bd13d727b7246cf8142b3fbbacaa35&"></div>
+            <div class="card-info">Sunset Red</div>
         </div>
+
+        <div id="card-Green" class="style-card" onclick="pickStyle(this, 'Green', 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)')">
+            <div class="preview-box"><img src="https://cdn.discordapp.com/attachments/1101409428944724000/1493335297696600264/Style_-_3.png?ex=69de985f&is=69dd46df&hm=3024674e01501a555feafaf5a6659f933379e39a5c1a5508a2f84d16fc05b855&"></div>
+            <div class="card-info">Midnight Green</div>
+        </div>
+    </div>
 
     <div class="action-bar">
         <a href="links-step.html" class="btn-continue" id="nextBtn">Select a Style</a>
@@ -174,39 +198,35 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // FAST UI UPDATE FUNCTION
-        function updateProfileUI(data) {
-            if (!data) return;
-            const nameEl = document.getElementById('userName');
-            const initialEl = document.getElementById('userInitials');
+        // FAST UI LOGIC
+        function updateUI(data) {
+            const userNameEl = document.getElementById('userName');
+            const userInitialsEl = document.getElementById('userInitials');
             
-            nameEl.innerText = data.username || "User";
+            if (data.username) userNameEl.innerText = data.username;
             
             if (data.profilePic) {
-                initialEl.innerHTML = `<img src="${data.profilePic}" alt="avatar">`;
-                initialEl.style.background = "none";
+                userInitialsEl.innerHTML = `<img src="${data.profilePic}">`;
+                userInitialsEl.style.background = "none";
             } else {
-                initialEl.innerText = data.username ? data.username[0].toUpperCase() : "?";
-                initialEl.style.background = "linear-gradient(45deg, #00dbde, #fc00ff)";
+                userInitialsEl.innerText = data.username ? data.username.charAt(0).toUpperCase() : "?";
+                userInitialsEl.style.background = "linear-gradient(45deg, #00dbde, #fc00ff)";
             }
             document.getElementById('userProfile').style.display = "flex";
         }
 
         auth.onAuthStateChanged((user) => {
             if (user) {
-                // 1. Instant check: load from cache while waiting for Firebase
-                const cachedData = localStorage.getItem(`profile_${user.uid}`);
-                if (cachedData) {
-                    updateProfileUI(JSON.parse(cachedData));
-                }
+                // Check Cache first
+                const cached = localStorage.getItem(`user_profile_${user.uid}`);
+                if (cached) updateUI(JSON.parse(cached));
 
-                // 2. Background sync: Listen for real-time changes
+                // Listen for Live Updates
                 db.collection('users').doc(user.uid).onSnapshot((doc) => {
                     if (doc.exists) {
-                        const freshData = doc.data();
-                        updateProfileUI(freshData);
-                        // Save to cache for next page load
-                        localStorage.setItem(`profile_${user.uid}`, JSON.stringify(freshData));
+                        const data = doc.data();
+                        updateUI(data);
+                        localStorage.setItem(`user_profile_${user.uid}`, JSON.stringify(data));
                     }
                 });
             } else {
@@ -214,7 +234,6 @@
             }
         });
 
-        // Style selection persistence
         window.onload = function() {
             const savedName = localStorage.getItem('selectedStyleName');
             const savedCSS = localStorage.getItem('selectedLinkTreeStyle');
