@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Select Your Style | LinkTree</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
     <style>
         body {
             margin: 0;
@@ -14,22 +19,72 @@
             flex-direction: column;
             color: white;
             align-items: center; 
-            padding-bottom: 120px; /* Space for the bottom action bar */
-        }
-        
-        header { padding: 60px 20px 30px 20px; text-align: center; }
-        
-        h1 { 
-            font-weight: 800; 
-            font-size: 2.5rem; 
-            margin: 0; 
-            letter-spacing: -1px;
+            padding-bottom: 120px;
         }
 
-        /* --- RESPONSIVE GRID --- */
+        /* --- NAVIGATION --- */
+        .top-nav {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Profile Specific - Initially Hidden */
+        .user-profile {
+            display: none; 
+            padding: 6px 18px 6px 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .avatar-circle {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(45deg, #00dbde, #fc00ff);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 14px;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* --- GALLERY & CARDS --- */
+        header { padding: 100px 20px 30px 20px; text-align: center; }
+        h1 { font-weight: 800; font-size: 2.5rem; margin: 0; letter-spacing: -1px; }
+
         .gallery-grid {
             display: grid;
-            /* PC: 3 columns | Tablet: 2 | Phone: 1 */
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 25px;
             width: 90%;
@@ -44,53 +99,24 @@
             border-radius: 24px;
             cursor: pointer;
             overflow: hidden;
-            transition: transform 0.3s, border-color 0.3s, background 0.3s;
-            position: relative;
-        }
-
-        .style-card:hover {
-            border-color: rgba(255, 255, 255, 0.3);
+            transition: 0.3s;
         }
 
         .style-card.selected {
             border-color: #ffffff;
             transform: scale(1.03);
             background: rgba(255, 255, 255, 0.15);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        .preview-box {
-            height: 200px;
-            background: #111;
-            overflow: hidden;
-        }
+        .preview-box { height: 200px; background: #111; overflow: hidden; }
+        .preview-box img { width: 100%; height: 100%; object-fit: cover; }
 
-        .preview-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: 0.5s;
-        }
+        .card-info { padding: 20px; text-align: center; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
 
-        .style-card:hover .preview-box img {
-            transform: scale(1.1);
-        }
-
-        .card-info { 
-            padding: 20px; 
-            text-align: center; 
-            font-weight: 700; 
-            font-size: 1.1rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* --- BOTTOM ACTION BAR --- */
+        /* --- ACTION BAR --- */
         .action-bar {
             position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
+            bottom: 0; left: 0; right: 0;
             padding: 25px;
             background: rgba(15, 12, 41, 0.8);
             backdrop-filter: blur(20px);
@@ -101,59 +127,34 @@
         }
 
         .btn-continue {
-            background: white;
-            color: black;
-            padding: 16px 80px;
-            border-radius: 16px;
-            font-weight: 800;
-            text-decoration: none;
-            opacity: 0.3;
-            pointer-events: none;
-            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(255,255,255,0.2);
+            background: white; color: black;
+            padding: 16px 80px; border-radius: 16px;
+            font-weight: 800; text-decoration: none;
+            opacity: 0.3; pointer-events: none;
+            transition: 0.3s; text-transform: uppercase;
+            width: 100%; max-width: 400px; text-align: center;
         }
 
-        .btn-continue.ready {
-            opacity: 1;
-            pointer-events: auto;
-            transform: translateY(0);
-        }
+        .btn-continue.ready { opacity: 1; pointer-events: auto; }
 
-        .btn-continue.ready:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(255,255,255,0.4);
-        }
-
-        /* --- MOBILE ADJUSTMENTS --- */
         @media (max-width: 600px) {
-            header { padding: 40px 20px 20px 20px; }
-            h1 { font-size: 1.8rem; }
-            
-            .gallery-grid {
-                grid-template-columns: 1fr; /* Force single column on phone */
-                gap: 20px;
-                padding: 10px;
-            }
-
-            .preview-box { height: 160px; }
-
-            .action-bar {
-                padding: 15px;
-            }
-
-            .btn-continue {
-                padding: 14px 0;
-                font-size: 0.9rem;
-            }
+            header { padding: 80px 20px 20px 20px; }
+            .nav-btn span { display: none; } 
         }
     </style>
 </head>
 <body>
+
+    <div class="top-nav">
+        <a href="index.html" class="nav-btn">
+            <i class="fa-solid fa-house"></i> <span>Home</span>
+        </a>
+
+        <div id="userProfile" class="nav-btn user-profile" onclick="window.location.href='settings.html'">
+            <div id="userInitials" class="avatar-circle">?</div>
+            <span id="userName">Username</span>
+        </div>
+    </div>
 
     <header>
         <h1>Pick Your Style</h1>
@@ -161,23 +162,17 @@
 
     <div class="gallery-grid">
         <div id="card-Blue" class="style-card" onclick="pickStyle(this, 'Blue', 'linear-gradient(180deg, #001529 0%, #00a8ff 100%)')">
-            <div class="preview-box">
-                <img src="https://cdn.discordapp.com/attachments/1101409428944724000/1493332023861973154/Untitled1.png?ex=69de9553&is=69dd43d3&hm=6c2663db77ee49f6254ef826fb18855415cee18850cc55953c01534a8f3e2122&">
-            </div>
+            <div class="preview-box"><img src="https://cdn.discordapp.com/attachments/1101409428944724000/1493332023861973154/Untitled1.png?ex=69de9553&is=69dd43d3&hm=6c2663db77ee49f6254ef826fb18855415cee18850cc55953c01534a8f3e2122&"></div>
             <div class="card-info">Ocean Blue</div>
         </div>
 
         <div id="card-Red" class="style-card" onclick="pickStyle(this, 'Red', 'linear-gradient(45deg, #ee0979, #ff6a00)')">
-            <div class="preview-box">
-                <img src="https://cdn.discordapp.com/attachments/1101409428944724000/1493333820865253547/Style_-_2.png?ex=69de96ff&is=69dd457f&hm=20b3fef62a9500ea0735a542b758565aa3bd13d727b7246cf8142b3fbbacaa35&">
-            </div>
+            <div class="preview-box"><img src="https://cdn.discordapp.com/attachments/1101409428944724000/1493333820865253547/Style_-_2.png?ex=69de96ff&is=69dd457f&hm=20b3fef62a9500ea0735a542b758565aa3bd13d727b7246cf8142b3fbbacaa35&"></div>
             <div class="card-info">Sunset Red</div>
         </div>
 
         <div id="card-Green" class="style-card" onclick="pickStyle(this, 'Green', 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)')">
-            <div class="preview-box">
-                <img src="https://cdn.discordapp.com/attachments/1101409428944724000/1493335297696600264/Style_-_3.png?ex=69de985f&is=69dd46df&hm=3024674e01501a555feafaf5a6659f933379e39a5c1a5508a2f84d16fc05b855&">
-            </div>
+            <div class="preview-box"><img src="https://cdn.discordapp.com/attachments/1101409428944724000/1493335297696600264/Style_-_3.png?ex=69de985f&is=69dd46df&hm=3024674e01501a555feafaf5a6659f933379e39a5c1a5508a2f84d16fc05b855&"></div>
             <div class="card-info">Midnight Green</div>
         </div>
     </div>
@@ -187,25 +182,61 @@
     </div>
 
     <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDjcNWpd7-zN4l--bdz_6NviRUthNnbZ5U",
+            authDomain: "linktree-a41ae.firebaseapp.com",
+            databaseURL: "https://linktree-a41ae-default-rtdb.firebaseio.com/",
+            projectId: "linktree-a41ae",
+            storageBucket: "linktree-a41ae.firebasestorage.app",
+            messagingSenderId: "829854289113",
+            appId: "1:829854289113:web:e625d84c546ed06b18c2c8"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        // AUTH CHECK FOR BUTTON VISIBILITY
+        auth.onAuthStateChanged((user) => {
+            const profileBtn = document.getElementById('userProfile');
+            if (user) {
+                // User is signed in
+                database.ref('users/' + user.uid).on('value', (snapshot) => {
+                    if (snapshot.exists()) {
+                        const data = snapshot.val();
+                        document.getElementById('userName').innerText = data.username || "User";
+                        document.getElementById('userInitials').innerText = data.username ? data.username.charAt(0).toUpperCase() : "?";
+                        
+                        if (data.profilePic) {
+                            document.getElementById('userInitials').innerHTML = `<img src="${data.profilePic}">`;
+                        }
+                        // Only show the button AFTER the data is ready
+                        profileBtn.style.display = "flex";
+                    } else {
+                        // Logged in but no DB profile - still show generic profile
+                        profileBtn.style.display = "flex";
+                    }
+                });
+            } else {
+                // No user is signed in - keep the button hidden
+                profileBtn.style.display = "none";
+            }
+        });
+
         window.onload = function() {
             const savedName = localStorage.getItem('selectedStyleName');
             const savedCSS = localStorage.getItem('selectedLinkTreeStyle');
-            
             if (savedName && savedCSS) {
                 const selectedCard = document.getElementById('card-' + savedName);
-                if (selectedCard) {
-                    pickStyle(selectedCard, savedName, savedCSS);
-                }
+                if (selectedCard) pickStyle(selectedCard, savedName, savedCSS);
             }
         };
 
         function pickStyle(card, styleName, cssValue) {
             document.querySelectorAll('.style-card').forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
-
             localStorage.setItem('selectedLinkTreeStyle', cssValue);
             localStorage.setItem('selectedStyleName', styleName); 
-
             const nextBtn = document.getElementById('nextBtn');
             nextBtn.classList.add('ready');
             nextBtn.innerText = "Confirm " + styleName + " →";
